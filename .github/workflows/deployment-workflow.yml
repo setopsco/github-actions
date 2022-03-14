@@ -9,7 +9,7 @@ on:
         required: true
         type: string
       setops-organization:
-        description: The setops organization
+        description: The SetOps organization
         required: true
         type: string
       setops-project:
@@ -50,7 +50,7 @@ jobs:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
-      - name: "Build image and push it to setops image registry"
+      - name: "Build image and push it to SetOps image registry"
         id: build_and_push_image
         uses: setopsco/github-actions/build-and-push-image@v1
         with:
@@ -77,7 +77,7 @@ jobs:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
-      - name: "Deploy apps on setops"
+      - name: "Deploy apps on SetOps"
         id: deploy
         uses: setopsco/github-actions/deployment@v1
         with:

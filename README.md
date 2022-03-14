@@ -2,7 +2,7 @@
 
 ## Deployment Workflow
 
-The repository contains a complete [reusable workflow](https://docs.github.com/en/actions/using-workflows/reusing-workflows) that can be integrated in CI pipelines to perform a complete setops deployment via
+The repository contains a complete [reusable workflow](https://docs.github.com/en/actions/using-workflows/reusing-workflows) that can be integrated in CI pipelines to perform a complete SetOps deployment via
 
 ```yaml
 name: Deployment
@@ -10,13 +10,13 @@ on: push
 
 jobs:
   setops-stages:
-    name: Detect setops stages based on the current branch
+    name: Detect SetOps stages based on the current branch
     runs-on: ubuntu-latest
     outputs:
       stages: ${{ steps.stages.outputs.stages }}
     if: github.ref == 'refs/heads/production' || github.ref == 'refs/heads/staging'
     steps:
-      - name: "Detect setops stages based on the current branch"
+      - name: "Detect SetOps stages based on the current branch"
         id: stages
         run: |
           if [ "$GITHUB_REF" == "refs/heads/staging" ]; then
@@ -48,7 +48,7 @@ jobs:
 
 This workflow
 
-* Builds a docker image based on the `Dockerfile` in the project's root folder and pushes it to the setops registry
+* Builds a docker image based on the `Dockerfile` in the project's root folder and pushes it to the SetOps registry
 * Deploys the image to every app configured in `apps`. If you configure more than one stage in `stages`, the workflow will deploy each stage in parallel
 
 CAUTION: The script assumes a configured healthcheck for *all* apps.
@@ -61,7 +61,7 @@ The workflow consists of a small workflow file that calls two separate Github Ac
 
 ### Action: `setops-build-and-push-image`
 
-The action builds the image and pushes it to the setops registry with all needed tags (one for each stage / app - combination). It also tries to provide a Docker cache. The cache key contains the current date. This way, we want to make subsequent deploys within one day faster; however we always want to have the newest (security) updates of the used distro and packages.
+The action builds the image and pushes it to the SetOps registry with all needed tags (one for each stage / app - combination). It also tries to provide a Docker cache. The cache key contains the current date. This way, we want to make subsequent deploys within one day faster; however we always want to have the newest (security) updates of the used distro and packages.
 
 You can also use the action without the workflow:
 
@@ -75,7 +75,7 @@ jobs:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
-      - name: "Build image and push it to setops image registry"
+      - name: "Build image and push it to SetOps image registry"
         id: build_and_push_image
         uses: setopsco/github-actions/build-and-push-image@v1
         with:
@@ -110,7 +110,7 @@ You can also use the action without the workflow:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
-      - name: "Deploy project on setops"
+      - name: "Deploy project on SetOps"
         id: deploy
         uses: setopsco/github-actions/deployment@v1
         with:

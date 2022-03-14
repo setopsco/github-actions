@@ -1,18 +1,18 @@
-name: "Build and push image to setops registry"
-description: "Builds the docker images and pushes it to the setops registry while creating a tag for each stage / app combination"
+name: "Build and push image to SetOps registry"
+description: "Builds the docker images and pushes it to the SetOps registry while creating a tag for each stage / app combination"
 
 inputs:
   setops-organization:
-    description: The setops organization
+    description: The SetOps organization
     required: true
   setops-project:
-    description: The setops project name
+    description: The SetOps project name
     required: true
   setops-username:
-    description: The setops username, usually obtained via secrets.SETOPS_USER
+    description: The SetOps username, usually obtained via secrets.SETOPS_USER
     required: true
   setops-password:
-    description: The setops password, usually obtained via secrets.SETOPS_PASSWORD
+    description: The SetOps password, usually obtained via secrets.SETOPS_PASSWORD
     required: true
   stages:
     description: List of stages in JSON format, e.g. '["production" ,"demo"]'
@@ -43,7 +43,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: "Detect setops target tag_names"
+    - name: "Detect SetOps target tag_names"
       id: build_tag_names
       run: |
         declare -a tag_names

@@ -1,24 +1,24 @@
 name: "Setops deployment"
-description: "Creates and activates releases for multiple apps within a setops stage, performs a predeploy command, waits for the releases to become healthy"
+description: "Creates and activates releases for multiple apps within a SetOps stage, performs a predeploy command, waits for the releases to become healthy"
 
 inputs:
   setops-organization:
-    description: The setops organization
+    description: The SetOps organization
     required: false
   setops-project:
-    description: The setops project name
+    description: The SetOps project name
     required: true
   setops-username:
-    description: The setops username, usually obtained via secrets.SETOPS_USER
+    description: The SetOps username, usually obtained via secrets.SETOPS_USER
     required: true
   setops-password:
-    description: The setops password, usually obtained via secrets.SETOPS_PASSWORD
+    description: The SetOps password, usually obtained via secrets.SETOPS_PASSWORD
     required: true
   image-digest:
-    description: The image digest that was returned when pushing the image to the setops registry
+    description: The image digest that was returned when pushing the image to the SetOps registry
     required: true
   stage:
-    description: The setops stage for the deployment, e.g. production
+    description: The SetOps stage for the deployment, e.g. production
     required: true
   apps:
     description: List of apps in JSON format, e.g. '["web", "clock", "worker"]'
