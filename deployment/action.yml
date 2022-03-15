@@ -21,7 +21,7 @@ inputs:
     description: The setops stage for the deployment, e.g. production
     required: true
   setops-apps:
-    description: List of apps in JSON format, e.g. '["web", "clock", "worker"]'
+    description: The SetOps apps to deploy, space separated, e.g. "app1 app2 app3"
     required: true
   number-of-retries-to-wait-for-successful-deployment:
     description: Max. number of times to wait for a succesful deployment (we sleep for 5 seconds between tries, so 12 equals 1 minute)
@@ -44,16 +44,12 @@ runs:
         shopt -s expand_aliases
         alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.setops-stage }}'
 
-        declare -a apps
-        for app in $(echo '${{ inputs.setops-apps }}' | jq -r '.[]'); do
-          apps+=($app)
-        done
-
         sos changeset:discard || true
 
-        declare -A apps_with_release_id
+        read -r -a apps <<< "${{ inputs.setops-apps }}"
 
-        for app in ${apps[@]}; do
+        declare -A apps_with_release_id
+        for app in "${apps[@]}"; do
           apps_with_release_id[$app]=$(sos --app $app release:create ${{ inputs.image-digest }} | grep -o 'ReleaseID.*' | grep -o '[0-9].*')
         done
 

@@ -15,10 +15,10 @@ inputs:
     description: The SetOps password, usually obtained via secrets.SETOPS_PASSWORD
     required: true
   setops-stages:
-    description: List of stages in JSON format, e.g. '["production" ,"demo"]'
+    description: The SetOps stages to publish to, space separated, e.g. "stage1 stage2 stage3"
     required: true
   setops-apps:
-    description: List of apps in JSON format, e.g. '["web", "clock", "worker"]'
+    description: The SetOps apps to build and deploy, space separated, e.g. "app1 app2 app3"
     required: true
   build-context:
     description: The build context / directory where the Dockerfile is located, defaults to '.'
@@ -47,8 +47,8 @@ runs:
       id: build_tag_names
       run: |
         declare -a tag_names
-        for stage in $(echo '${{ inputs.setops-stages }}' | jq -r '.[]'); do
-          for app in $(echo '${{ inputs.setops-apps }}' | jq -r '.[]'); do
+        for stage in ${{ inputs.setops-stages }}; do
+          for app in ${{ inputs.setops-apps }}; do
             tag_names+=("api.setops.co/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:latest")
           done
         done
