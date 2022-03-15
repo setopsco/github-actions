@@ -20,7 +20,7 @@ inputs:
   setops-stage:
     description: The setops stage for the deployment, e.g. production
     required: true
-  apps:
+  setops-apps:
     description: List of apps in JSON format, e.g. '["web", "clock", "worker"]'
     required: true
   number-of-retries-to-wait-for-successful-deployment:
@@ -45,7 +45,7 @@ runs:
         alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.setops-stage }}'
 
         declare -a apps
-        for app in $(echo '${{ inputs.apps }}' | jq -r '.[]'); do
+        for app in $(echo '${{ inputs.setops-apps }}' | jq -r '.[]'); do
           apps+=($app)
         done
 

@@ -17,7 +17,7 @@ inputs:
   setops-stages:
     description: List of stages in JSON format, e.g. '["production" ,"demo"]'
     required: true
-  apps:
+  setops-apps:
     description: List of apps in JSON format, e.g. '["web", "clock", "worker"]'
     required: true
   build-context:
@@ -48,7 +48,7 @@ runs:
       run: |
         declare -a tag_names
         for stage in $(echo '${{ inputs.setops-stages }}' | jq -r '.[]'); do
-          for app in $(echo '${{ inputs.apps }}' | jq -r '.[]'); do
+          for app in $(echo '${{ inputs.setops-apps }}' | jq -r '.[]'); do
             tag_names+=("api.setops.co/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:latest")
           done
         done

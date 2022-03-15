@@ -32,7 +32,7 @@ jobs:
     uses: setopsco/github-actions/.github/workflows/deployment-workflow.yml@v1
     with:
       setops-stages: ${{ needs.setops-stages.outputs.stages }}
-      apps: '["web", "clock", "worker"]'
+      setops-apps: '["web", "clock", "worker"]'
       setops-project: my_setops_project_name
       predeploy-command: bin/rails db:migrate
       build-args: |
@@ -49,7 +49,7 @@ jobs:
 This workflow
 
 * Builds a docker image based on the `Dockerfile` in the project's root folder and pushes it to the setops registry
-* Deploys the image to every app configured in `apps`. If you configure more than one stage in `setops-stages`, the workflow will deploy each stage in parallel
+* Deploys the image to every app configured in `setops-apps`. If you configure more than one stage in `setops-stages`, the workflow will deploy each stage in parallel
 
 CAUTION: The script assumes a configured healthcheck for *all* apps.
 
@@ -80,7 +80,7 @@ jobs:
         uses: setopsco/github-actions/build-and-push-image@v1
         with:
           setops-stages: ${{ needs.setops-stages.outputs.stages }}
-          apps: '["web", "clock", "worker"]'
+          setops-apps: '["web", "clock", "worker"]'
           setops-username: ${{ secrets.SETOPS_USER }}
           setops-password: ${{ secrets.SETOPS_PASSWORD }}
           setops-project: my_setops_project_name
@@ -114,8 +114,8 @@ You can also use the action without the workflow:
         id: deploy
         uses: setopsco/github-actions/deployment@v1
         with:
-          stage: production
-          apps: ${{ inputs.apps }}
+          setops-stage: production
+          setops-apps: ${{ inputs.apps }}
           setops-project: my_setops_project_name
           setops-username: ${{ secrets.SETOPS_USER }}
           setops-password: ${{ secrets.SETOPS_PASSWORD }}

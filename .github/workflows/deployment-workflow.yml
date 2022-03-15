@@ -5,7 +5,7 @@ on:
       setops-stages:
         required: true
         type: string
-      apps:
+      setops-apps:
         required: true
         type: string
       setops-organization:
@@ -55,7 +55,7 @@ jobs:
         uses: setopsco/github-actions/build-and-push-image@v1
         with:
           setops-stages: ${{ inputs.setops-stages }}
-          apps: ${{ inputs.apps }}
+          setops-apps: ${{ inputs.setops-apps }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
           setops-project: ${{ inputs.setops-project }}
@@ -82,7 +82,7 @@ jobs:
         uses: setopsco/github-actions/deployment@v1
         with:
           setops-stage: ${{ matrix.setops-stage }}
-          apps: ${{ inputs.apps }}
+          setops-apps: ${{ inputs.setops-apps }}
           setops-project: ${{ inputs.setops-project }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
