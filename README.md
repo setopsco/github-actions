@@ -31,7 +31,7 @@ jobs:
   setops-deployment:
     uses: setopsco/github-actions/.github/workflows/deployment-workflow.yml@v1
     with:
-      stages: ${{ needs.setops-stages.outputs.stages }}
+      setops-stages: ${{ needs.setops-stages.outputs.stages }}
       apps: '["web", "clock", "worker"]'
       setops-project: my_setops_project_name
       predeploy-command: bin/rails db:migrate
@@ -49,7 +49,7 @@ jobs:
 This workflow
 
 * Builds a docker image based on the `Dockerfile` in the project's root folder and pushes it to the setops registry
-* Deploys the image to every app configured in `apps`. If you configure more than one stage in `stages`, the workflow will deploy each stage in parallel
+* Deploys the image to every app configured in `apps`. If you configure more than one stage in `setops-stages`, the workflow will deploy each stage in parallel
 
 CAUTION: The script assumes a configured healthcheck for *all* apps.
 
@@ -59,7 +59,7 @@ See the [workflow file](.github/workflows/setops-deployment-workflow.yml) for al
 
 The workflow consists of a small workflow file that calls two separate Github Actions which can also be included separately your Github Workflow.
 
-### Action: `setops-build-and-push-image`
+### Action: `build-and-push-image`
 
 The action builds the image and pushes it to the setops registry with all needed tags (one for each stage / app - combination). It also tries to provide a Docker cache. The cache key contains the current date. This way, we want to make subsequent deploys within one day faster; however we always want to have the newest (security) updates of the used distro and packages.
 
@@ -79,7 +79,7 @@ jobs:
         id: build_and_push_image
         uses: setopsco/github-actions/build-and-push-image@v1
         with:
-          stages: ${{ needs.setops-stages.outputs.stages }}
+          setops-stages: ${{ needs.setops-stages.outputs.stages }}
           apps: '["web", "clock", "worker"]'
           setops-username: ${{ secrets.SETOPS_USER }}
           setops-password: ${{ secrets.SETOPS_PASSWORD }}
@@ -88,7 +88,7 @@ jobs:
 
 See the [action file](setops-build-and-push-image/action.yml) for all possible inputs
 
-### Action: `setops-deployment`
+### Action: `deployment`
 
 The action
 

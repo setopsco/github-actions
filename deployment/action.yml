@@ -17,7 +17,7 @@ inputs:
   image-digest:
     description: The image digest that was returned when pushing the image to the setops registry
     required: true
-  stage:
+  setops-stage:
     description: The setops stage for the deployment, e.g. production
     required: true
   apps:
@@ -42,7 +42,7 @@ runs:
     - name: "Setops deployment"
       run: |
         shopt -s expand_aliases
-        alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.stage }}'
+        alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.setops-stage }}'
 
         declare -a apps
         for app in $(echo '${{ inputs.apps }}' | jq -r '.[]'); do

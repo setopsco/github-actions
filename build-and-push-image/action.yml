@@ -14,7 +14,7 @@ inputs:
   setops-password:
     description: The setops password, usually obtained via secrets.SETOPS_PASSWORD
     required: true
-  stages:
+  setops-stages:
     description: List of stages in JSON format, e.g. '["production" ,"demo"]'
     required: true
   apps:
@@ -47,7 +47,7 @@ runs:
       id: build_tag_names
       run: |
         declare -a tag_names
-        for stage in $(echo '${{ inputs.stages }}' | jq -r '.[]'); do
+        for stage in $(echo '${{ inputs.setops-stages }}' | jq -r '.[]'); do
           for app in $(echo '${{ inputs.apps }}' | jq -r '.[]'); do
             tag_names+=("api.setops.co/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:latest")
           done
