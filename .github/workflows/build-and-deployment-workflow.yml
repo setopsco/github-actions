@@ -73,8 +73,7 @@ jobs:
       - name: "Prepare setops-stages variable"
         id: prepare-stages-variables
         run: |
-          stages_json=$(echo ${{ inputs.setops-stages }} | jq -R 'split(" ")')
-          echo "$stages_json" #debug
+          stages_json=$(echo ${{ inputs.setops-stages }} | jq -Rc 'split(" ")')
           echo "::set-output name=stages-json::$stages_json"
 
   deploy:
