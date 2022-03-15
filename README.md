@@ -29,7 +29,7 @@ jobs:
           fi
 
   setops-deployment:
-    uses: setopsco/github-actions/.github/workflows/deployment-workflow.yml@v1
+    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v1
     with:
       setops-stages: ${{ needs.setops-stages.outputs.stages }}
       setops-apps: '["web", "clock", "worker"]'
@@ -53,7 +53,7 @@ This workflow
 
 CAUTION: The script assumes a configured healthcheck for *all* apps.
 
-See the [workflow file](.github/workflows/setops-deployment-workflow.yml) for all possible inputs
+See the [workflow file](.github/workflows/build-and-deployment-workflow.yml) for all possible inputs
 
 ## Building blocks
 
