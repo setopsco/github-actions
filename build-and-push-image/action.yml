@@ -1,5 +1,5 @@
 name: "Build and push image to SetOps registry"
-description: "Builds the docker images and pushes it to the SetOps registry while creating a tag for each stage / app combination"
+description: "Builds the Docker images and pushes it to the SetOps registry while creating a tag for each stage / app combination"
 
 inputs:
   setops-organization:
@@ -75,7 +75,7 @@ runs:
         key: ${{ runner.os }}-buildx-${{ steps.get_date.outputs.date }}-${{ inputs.build-cache-key-prefix }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-buildx-${{ steps.get_date.outputs.date }}-${{ inputs.build-cache-key-prefix }}-
-    - name: "Install Setops"
+    - name: "Install SetOps CLI"
       uses: setopsco/setup-setops@v3
       with:
         setops_organization: ${{ inputs.setops-organization }}
