@@ -9,10 +9,10 @@ inputs:
     description: The SetOps project name
     required: true
   setops-username:
-    description: The SetOps username, usually obtained via secrets.SETOPS_USER
+    description: The SetOps username, usually passed in from a Github Actions secret
     required: true
   setops-password:
-    description: The SetOps password, usually obtained via secrets.SETOPS_PASSWORD
+    description: The SetOps password, usually passed in from a Github Actions secret
     required: true
   setops-stages:
     description: The SetOps stages to publish to, space separated, e.g. "stage1 stage2 stage3"
