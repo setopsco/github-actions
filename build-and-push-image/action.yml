@@ -46,8 +46,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: "Checkout repository"
-      uses: actions/checkout@v2
     - name: "Detect SetOps target tag_names"
       id: build_tag_names
       run: |
