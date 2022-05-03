@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image-digest: ${{ steps.build-and-push-image.outputs.image-digest }}
-      stages-json: ${{ steps.prepare-stages-variables.outputs.stages-json }}
+      stages-json: ${{ steps.build-and-push-image.outputs.stages-json }}
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
@@ -67,14 +67,6 @@ jobs:
           build-cache-key-prefix: ${{ inputs.build-cache-key-prefix }}
           build-args: ${{ inputs.build-args }}
           build-secrets: ${{ secrets.build-secrets }}
-
-      # We need the stages variable in a json format for the next job, so
-      # we convert it with jq to JSON
-      - name: "Prepare setops-stages variable"
-        id: prepare-stages-variables
-        run: |
-          stages_json=$(echo ${{ inputs.setops-stages }} | jq -Rc 'split(" ")')
-          echo "::set-output name=stages-json::$stages_json"
 
   deploy:
     name: Setops Deployment

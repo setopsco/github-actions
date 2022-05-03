@@ -39,6 +39,9 @@ outputs:
   image-digest:
     value: ${{ steps.build_app.outputs.digest }}
     description: The digest of the image that can be referred to when creating releases
+  stages-json:
+    value: ${{ steps.prepare-stages-variables.outputs.stages-json }}
+    description: The given stages in stages format, so that they can be used as a matrix workflow input
 
 runs:
   using: "composite"
@@ -104,4 +107,12 @@ runs:
       run: |
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      shell: bash
+    # We need the stages variable in a json format for the next job, so
+    # we convert it with jq to JSON
+    - name: "Prepare setops-stages variable"
+      id: prepare-stages-variables
+      run: |
+        stages_json=$(echo ${{ inputs.setops-stages }} | jq -Rc 'split(" ")')
+        echo "::set-output name=stages-json::$stages_json"
       shell: bash
