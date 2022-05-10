@@ -20,9 +20,9 @@ jobs:
         id: stages
         run: |
           if [ "$GITHUB_REF" == "refs/heads/staging" ]; then
-            echo '::set-output name=stages::["staging"]'
+            echo '::set-output name=stages::staging'
           elif [ "$GITHUB_REF" == "refs/heads/production" ]; then
-            echo '::set-output name=stages::["production"]'
+            echo '::set-output name=stages::production'
           else
             echo "⚠️ Could not determine stages for $GITHUB_REF"
             exit 1
@@ -45,6 +45,12 @@ jobs:
         A_BUILD_SECRET_REQUIRED_BY_YOUR_DOCKERFILE="${{ secrets.SECRET1 }}"
         ANOTHER_BUILD_SECRET="A plain string works, too - but this is not secret anymore :-)"
 ```
+
+You can deploy from one branch to multiple setops stages by setting the output in the `setops_stages` job to a space separated list of stages like this:
+```
+   echo '::set-output name=stages::production demo'
+```
+
 
 This workflow
 
