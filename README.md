@@ -29,7 +29,7 @@ jobs:
           fi
 
   setops-deployment:
-    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v1
+    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v2
     with:
       setops-stages: ${{ needs.setops-stages.outputs.stages }}
       setops-apps: '["web", "clock", "worker"]'
@@ -59,6 +59,48 @@ See the [workflow file](.github/workflows/build-and-deployment-workflow.yml) for
 
 The workflow consists of a small workflow file that calls two separate Github Actions which can also be included separately your Github Workflow.
 
+### Action: `setup`
+
+<p align="left">
+  <a href="https://github.com/setopsco/github-actions/actions"><img alt="Test Setup Action Build" src="https://github.com/setopsco/github-actions/workflows/test-setup-action-build/badge.svg" /></a>
+  <a href="https://github.com/setopsco/github-actions/actions"><img alt="Test Setup Action" src="https://github.com/setopsco/github-actions/workflows/test-setup-action/badge.svg" /></a>
+</p>
+
+The `setopsco/github-actions/setup` action is a JavaScript action that sets up SetOps CLI in your GitHub Actions workflow by downloading a specific version of SetOps CLI and adding it to your `PATH`. The action also allows to login, which includes preparing the Docker Daemon to be able to push to SetOps.
+
+After you've used the action, subsequent steps in the same job can run arbitrary SetOps commands using [the GitHub Actions `run` syntax](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun). This allows most SetOps commands to work exactly like they do on your local command line.
+
+This action can be run on `ubuntu-latest` GitHub Actions runners.
+
+The default configuration installs the latest version of SetOps CLI and installs the wrapper script to wrap subsequent calls to the `setops` binary.
+
+```yaml
+steps:
+- uses: setopsco/github-actions/setup@v2
+```
+
+A specific version of SetOps CLI can be installed.
+
+```yaml
+steps:
+- uses: setopsco/github-actions/setup@v2
+  with:
+    setops_version: 1.0.0
+```
+
+Credentials for SetOps can be configured.
+
+```yaml
+steps:
+- uses: setopsco/github-actions/setup@v2
+  with:
+    setops_organization: yourorganization
+    setops_username: my-ci-user@setops.co
+    setops_password: ${{ secrets.SETOPS_PASSWORD }}
+```
+
+See the [action file](setup/action.yml) for all possible inputs
+
 ### Action: `build-and-push-image`
 
 The action builds the image and pushes it to the SetOps registry with all needed tags (one for each stage / app - combination). It also tries to provide a Docker cache. The cache key contains the current date. This way, subsequent deploys within one day become faster while always using the newest (security) updates for the distros and packages.
@@ -74,10 +116,10 @@ jobs:
       image-digest: ${{ steps.build_and_push_image.outputs.image-digest }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: "Build image and push it to SetOps image registry"
         id: build_and_push_image
-        uses: setopsco/github-actions/build-and-push-image@v1
+        uses: setopsco/github-actions/build-and-push-image@v2
         with:
           setops-stages: ${{ needs.setops-stages.outputs.stages }}
           setops-apps: '["web", "clock", "worker"]'
@@ -109,10 +151,10 @@ You can also use the action without the workflow:
     needs: build
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: "Deploy project on SetOps"
         id: deploy
-        uses: setopsco/github-actions/deployment@v1
+        uses: setopsco/github-actions/deployment@v2
         with:
           setops-stage: production
           setops-apps: ${{ inputs.apps }}

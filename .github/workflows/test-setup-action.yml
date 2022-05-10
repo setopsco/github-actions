@@ -1,0 +1,73 @@
+name: 'test-setup-action'
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  setops-versions-latest:
+    name: 'SetOps Versions'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        setops_versions: ["0.10.3", latest]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup SetOps - ${{ matrix['setops_versions'] }}
+      uses: ./setup
+      with:
+        setops_version: ${{ matrix['setops_versions'] }}
+
+    - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
+      if: ${{ matrix['setops_versions'] != 'latest' }}
+      run: |
+        setops version | grep "CLI Version:      ${{ matrix['setops_versions']}}"
+
+    - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
+      if: ${{ matrix['setops_versions'] == 'latest' }}
+      run: |
+        setops version | grep "CLI Version:      "
+
+  setops-versions-constraints:
+    name: 'SetOps Versions Constraints'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        setops_versions: [~0.9, 0.9.x, <0.10.0]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup SetOps - ${{ matrix['setops_versions'] }}
+      uses: ./setup
+      with:
+        setops_version: ${{ matrix['setops_versions'] }}
+
+    - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
+      run: |
+        setops version | grep "CLI Version:      0\.9"
+
+  setops-with-login:
+    name: 'SetOps Credentials'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup SetOps
+      uses: ./setup
+      with:
+        setops_api_url: ${{ secrets.SETOPS_API_URL }}
+        setops_organization: dev
+        setops_password: ${{ secrets.SETOPS_PASSWORD }}
+        setops_username: github-actions-setup@setops.co
+
+    - name: Validate successful login
+      run: setops project | grep "NAME"
+
+    - name: setops logout
+      run: setops logout

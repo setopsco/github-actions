@@ -79,15 +79,11 @@ runs:
         restore-keys: |
           ${{ runner.os }}-buildx-${{ steps.get_date.outputs.date }}-${{ inputs.build-cache-key-prefix }}-
     - name: "Install SetOps CLI"
-      uses: setopsco/setup-setops@v3
+      uses: setopsco/github-actions/setup@v2
       with:
         setops_organization: ${{ inputs.setops-organization }}
         setops_username: ${{ inputs.setops-username }}
         setops_password: ${{ inputs.setops-password }}
-    - name: "Login to SetOps registry"
-      run: |
-        LOGIN_COMMAND=$(setops registry:login | grep printf)
-        eval $LOGIN_COMMAND
       shell: bash
     - name: Build and push app
       id: build_app
