@@ -32,7 +32,7 @@ jobs:
     uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v1
     with:
       setops-stages: ${{ needs.setops-stages.outputs.stages }}
-      setops-apps: '["web", "clock", "worker"]'
+      setops-apps: web clock worker
       setops-project: my_setops_project_name
       predeploy-command: bin/rails db:migrate
       build-args: |
