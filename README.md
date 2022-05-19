@@ -47,6 +47,12 @@ jobs:
         ANOTHER_BUILD_SECRET="A plain string works, too - but this is not secret anymore :-)"
 ```
 
+You can deploy from one branch to multiple setops stages by setting the output in the `setops_stages` job to a space separated list of stages like this:
+```
+   echo '::set-output name=stages::production demo'
+```
+
+
 This workflow
 
 * Builds a docker image based on the `Dockerfile` in the project's root folder and pushes it to the SetOps registry.
