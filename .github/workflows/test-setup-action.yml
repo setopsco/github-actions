@@ -67,7 +67,7 @@ jobs:
         setops_username: github-actions-setup@setops.co
 
     - name: Validate successful login
-      run: setops project
+      run: setops project | grep "NAME"
 
     - name: setops logout
       run: setops logout
