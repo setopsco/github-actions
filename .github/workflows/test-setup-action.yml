@@ -69,5 +69,12 @@ jobs:
     - name: Validate successful login
       run: setops project | grep "NAME"
 
+    - name: Validate Docker config was updated
+      run: |
+        grep '"api.setops.co": "setops"' ~/.docker/config.json
+
+    - name: Validate Credentials Helper is present
+      run: docker-credential-setops -h
+
     - name: setops logout
       run: setops logout
