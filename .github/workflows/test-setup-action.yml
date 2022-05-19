@@ -71,8 +71,7 @@ jobs:
 
     - name: Validate Docker config was updated
       run: |
-        cat ~/.docker/config.json
-        grep '"api.setops.co": "setops"' ~/.docker/config.json
+        grep '"dev.setops.co": "setops-dev"' ~/.docker/config.json
 
     - name: Validate Credentials Helper is present
       run: docker-credential-setops -h
