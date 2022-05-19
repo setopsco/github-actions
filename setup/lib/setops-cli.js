@@ -20,7 +20,7 @@ function login(organization, username, password, apiUrl) {
   core.addPath(binDir)
 
   // prepare args
-  const args = ["login", "--url", apiUrl, "--service-account"]
+  const args = ["login", "--url", apiUrl, "--service-user"]
   const options = {
     encoding: 'utf-8',
     stdio: ['pipe', process.stdout, process.stderr]
