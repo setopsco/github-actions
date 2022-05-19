@@ -136,7 +136,7 @@ jobs:
           setops-apps: web worker
 ```
 
-See the [action file](setops-build-and-push-image/action.yml) for all possible inputs.
+See the [action file](build-and-push-image/action.yml) for all possible inputs.
 
 ### Action: `deployment`
 
@@ -174,4 +174,4 @@ You can also use the action without the workflow:
           predeploy-command: bin/rails db:migrate
 ```
 
-See the [action file](setops-deployment/action.yml) for all possible inputs.
+See the [action file](deployment/action.yml) for all possible inputs.
