@@ -150,28 +150,28 @@ The action
 You can also use the action without the workflow:
 
 ```yaml
- deploy:
-    name: Setops Deployment
-    strategy:
-      fail-fast: false
-    concurrency: setops-deployment-${{ github.ref }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: "Checkout repository"
-        uses: actions/checkout@v3
-      - name: "Deploy project on SetOps"
-        id: deploy
-        uses: setopsco/github-actions/deployment@v2
-        with:
-          setops-organization: <yourorganization>
-          setops-username: ${{ secrets.SETOPS_USER }}
-          setops-password: ${{ secrets.SETOPS_PASSWORD }}
-          setops-project: <projectname>
-          setops-stage: <stagename>
-          setops-apps: web worker
-          image-digest: <sha256:7df5b97245.....>
-          predeploy-command: bin/rails db:migrate
+deploy:
+  name: Setops Deployment
+  strategy:
+    fail-fast: false
+  concurrency: setops-deployment-${{ github.ref }}
+  runs-on: ubuntu-latest
+  needs: build
+  steps:
+    - name: "Checkout repository"
+      uses: actions/checkout@v3
+    - name: "Deploy project on SetOps"
+      id: deploy
+      uses: setopsco/github-actions/deployment@v2
+      with:
+        setops-organization: <yourorganization>
+        setops-username: ${{ secrets.SETOPS_USER }}
+        setops-password: ${{ secrets.SETOPS_PASSWORD }}
+        setops-project: <projectname>
+        setops-stage: <stagename>
+        setops-apps: web worker
+        image-digest: <sha256:7df5b97245.....>
+        predeploy-command: bin/rails db:migrate
 ```
 
 See the [action file](deployment/action.yml) for all possible inputs.
