@@ -2,19 +2,24 @@ name: Setops Deployment
 on:
   workflow_call:
     inputs:
-      setops-stages:
-        description: The SetOps stages to deploy to, space separated, e.g. "stage1 stage2 stage3"
-        required: true
-        type: string
-      setops-apps:
-        description: The SetOps apps to deploy, space separated, e.g. "app1 app2 app3"
-        required: true
+      setops-api-domain:
+        description: The SetOps API URL to connect to
+        required: false
+        default: 'api.setops.co'
         type: string
       setops-organization:
         description: The SetOps organization
         required: true
         type: string
       setops-project:
+        required: true
+        type: string
+      setops-stages:
+        description: The SetOps stages to deploy to, space separated, e.g. "stage1 stage2 stage3"
+        required: true
+        type: string
+      setops-apps:
+        description: The SetOps apps to deploy, space separated, e.g. "app1 app2 app3"
         required: true
         type: string
       predeploy-command:
@@ -57,12 +62,13 @@ jobs:
         id: build-and-push-image
         uses: setopsco/github-actions/build-and-push-image@v2
         with:
+          setops-api-domain: ${{ inputs.setops-api-domain }}
+          setops-organization: ${{ inputs.setops-organization }}
+          setops-project: ${{ inputs.setops-project }}
           setops-stages: ${{ inputs.setops-stages }}
           setops-apps: ${{ inputs.setops-apps }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
-          setops-project: ${{ inputs.setops-project }}
-          setops-organization: ${{ inputs.setops-organization }}
           build-context: ${{ inputs.build-context }}
           build-cache-key-prefix: ${{ inputs.build-cache-key-prefix }}
           build-args: ${{ inputs.build-args }}
@@ -84,11 +90,12 @@ jobs:
         id: deploy
         uses: setopsco/github-actions/deployment@v2
         with:
+          setops-api-domain: ${{ inputs.setops-api-domain }}
+          setops-organization: ${{ inputs.setops-organization }}
+          setops-project: ${{ inputs.setops-project }}
           setops-stage: ${{ matrix.setops-stage }}
           setops-apps: ${{ inputs.setops-apps }}
-          setops-project: ${{ inputs.setops-project }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
           image-digest: ${{ needs.build.outputs.image-digest }}
           predeploy-command: ${{ inputs.predeploy-command }}
-          setops-organization: ${{ inputs.setops-organization }}
