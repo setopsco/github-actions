@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  SETOPS_ORG: "dev"
+  SETOPS_ORG: ${{ secrets.SETOPS_ORG }}
   SETOPS_PROJECT: "githubactions"
   SETOPS_STAGE: "testing"
   SETOPS_APPS: "web" # todo: add "worker" in https://github.com/setopsco/github-actions/pull/10 and remove this comment
@@ -26,7 +26,6 @@ jobs:
         id: build-and-push-image
         uses: ./build-and-push-image
         with:
-          setops-api-domain: ${{ secrets.SETOPS_API_DOMAIN }}
           setops-stages: ${{ env.SETOPS_STAGE }}
           setops-apps: ${{ env.SETOPS_APPS }}
           setops-username: ${{ env.SETOPS_USERNAME }}
@@ -52,7 +51,6 @@ jobs:
         id: deploy
         uses: ./deployment
         with:
-          setops-api-domain: ${{ secrets.SETOPS_API_DOMAIN }}
           setops-stage: ${{ matrix.setops-stage }}
           setops-apps: ${{ env.SETOPS_APPS }}
           setops-project: ${{ env.SETOPS_PROJECT }}

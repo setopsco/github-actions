@@ -61,8 +61,7 @@ jobs:
     - name: Setup SetOps
       uses: ./setup
       with:
-        setops_api_url: https://${{ secrets.SETOPS_API_DOMAIN }}
-        setops_organization: dev
+        setops_organization: ${{ secrets.SETOPS_ORG }}
         setops_password: ${{ secrets.SETOPS_PASSWORD }}
         setops_username: github-actions-setup@setops.co
 
