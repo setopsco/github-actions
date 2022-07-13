@@ -30,7 +30,7 @@ inputs:
   number-of-retries-to-wait-for-successful-deployment:
     description: Max. number of times to wait for a succesful deployment (we sleep for 5 seconds between tries, so 12 equals 1 minute)
     required: false
-    default: "24"
+    default: "120"
   predeploy-command:
     description: A predeploy command to be run before activating the releases, e.g. for migrating the database
     required: false
