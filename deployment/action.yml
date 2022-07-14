@@ -23,10 +23,14 @@ inputs:
   setops-apps:
     description: The SetOps apps to deploy, space separated, e.g. "app1 app2 app3"
     required: true
-  number-of-retries-to-wait-for-successful-deployment:
-    description: Max. number of times to wait for a succesful deployment (we sleep for 5 seconds between tries, so 12 equals 1 minute)
+  setops-api-domain:
+    description: The SetOps API URL to connect to
+    default: 'api.setops.co'
     required: false
-    default: "24"
+  number-of-retries-to-wait-for-successful-deployment:
+    description: Max. number of times to wait for a successful deployment (we sleep for 5 seconds between tries, so 12 equals 1 minute)
+    required: false
+    default: "120"
   predeploy-command:
     description: A predeploy command to be run before activating the releases, e.g. for migrating the database
     required: false
@@ -36,6 +40,7 @@ runs:
     - name: "Install Setops"
       uses: setopsco/github-actions/setup@v2
       with:
+        setops_api_url: https://${{ inputs.setops-api-domain }}
         setops_organization: ${{ inputs.setops-organization }}
         setops_username: ${{ inputs.setops-username }}
         setops_password: ${{ inputs.setops-password }}
