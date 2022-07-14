@@ -9,7 +9,7 @@ env:
   SETOPS_ORG: ${{ secrets.SETOPS_ORG }}
   SETOPS_PROJECT: "githubactions"
   SETOPS_STAGE: "testing"
-  SETOPS_APPS: "web" # todo: add "worker" in https://github.com/setopsco/github-actions/pull/10 and remove this comment
+  SETOPS_APPS: "web worker"
   SETOPS_USERNAME: "github-actions-setup@setops.co"
 
 jobs:
