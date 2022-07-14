@@ -20,6 +20,10 @@ inputs:
   setops-apps:
     description: The SetOps apps to build and deploy, space separated, e.g. "app1 app2 app3"
     required: true
+  setops-api-domain:
+    description: The SetOps API domain to connect to
+    default: 'api.setops.co'
+    required: false
   build-context:
     description: The build context / directory where the Dockerfile is located, defaults to '.'
     required: false
@@ -52,7 +56,7 @@ runs:
         declare -a tag_names
         for stage in ${{ inputs.setops-stages }}; do
           for app in ${{ inputs.setops-apps }}; do
-            tag_names+=("api.setops.co/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:latest")
+            tag_names+=("${{ inputs.setops-api-domain }}/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:latest")
           done
         done
 
@@ -81,6 +85,7 @@ runs:
     - name: "Install SetOps CLI"
       uses: setopsco/github-actions/setup@v2
       with:
+        setops_api_url: https://${{ inputs.setops-api-domain }}
         setops_organization: ${{ inputs.setops-organization }}
         setops_username: ${{ inputs.setops-username }}
         setops_password: ${{ inputs.setops-password }}
