@@ -86,9 +86,17 @@ runs:
         for app in "${apps[@]}"; do
           release_id=${apps_with_release_id[$app]}
 
+          # Checking for health state of HEALTHY when health check is configured or otherwise accept UNKNOWN
+          app_info=$(sos app:ps $app)
+          expected_health_status=UNKNOWN
+          if echo "$app_info" | grep -A1  "Health Check:" | grep -q "   Command:"; then
+            expected_health_status=HEALTHY
+          fi
+
           for i in $(seq 1 $max_times); do
             sleep 5
-            if sos app:ps $app | grep -w -E "$release_id.*HEALTHY"; then break; fi
+
+            if sos app:ps $app | grep -w -E "$release_id.*RUNNING.*$expected_health_status"; then break; fi
             echo "Continue waiting for $app release $release_id"
 
             if [ $i = $max_times ]; then exit 1; fi

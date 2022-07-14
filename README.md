@@ -57,8 +57,7 @@ This workflow
 
 * Builds a docker image based on the `Dockerfile` in the project's root folder and pushes it to the SetOps registry.
 * Deploys the image to every app configured in `setops-apps`. If you configure more than one stage in `setops-stages`, the workflow will deploy each stage in parallel.
-
-CAUTION: The script assumes a configured [Container Health Check](https://docs.setops.co/latest/user/configuration/apps/#container-health-check) for *all* apps.
+* The script waits for the apps to run and checks, if the [Container Health Check](https://docs.setops.co/latest/user/configuration/apps/#container-health-check) succeeds for all apps if there is a health check configured.
 
 See the [workflow file](.github/workflows/build-and-deployment-workflow.yml) for all possible inputs.
 
@@ -145,7 +144,7 @@ The action
 * Creates releases for all configured apps
 * Runs the pre-deploy command within the first of the configured apps (`web` here)
 * Activates all releases
-* Waits until all releases are healthy
+* Waits until all releases are healthy (if a health check is configured)
 
 You can also use the action without the workflow:
 
