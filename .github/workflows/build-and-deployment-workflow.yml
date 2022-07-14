@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v3
       - name: "Build image and push it to SetOps image registry"
         id: build-and-push-image
-        uses: ./build-and-push-image
+        uses: setopsco/github-actions/build-and-push-image@v2
         with:
           setops-api-domain: ${{ inputs.setops-api-domain }}
           setops-organization: ${{ inputs.setops-organization }}
@@ -88,7 +88,7 @@ jobs:
         uses: actions/checkout@v3
       - name: "Deploy apps on SetOps"
         id: deploy
-        uses: ./deployment
+        uses: setopsco/github-actions/deployment@v2
         with:
           setops-api-domain: ${{ inputs.setops-api-domain }}
           setops-organization: ${{ inputs.setops-organization }}
