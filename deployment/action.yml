@@ -87,7 +87,7 @@ runs:
           release_id=${apps_with_release_id[$app]}
 
           # Checking for health state of HEALTHY when health check is configured or otherwise accept UNKNOWN
-          app_info=$(sos app:ps $app)
+          app_info=$(sos app:info $app)
           expected_health_status=UNKNOWN
           if echo "$app_info" | grep -A1  "Health Check:" | grep -q "   Command:"; then
             expected_health_status=HEALTHY
