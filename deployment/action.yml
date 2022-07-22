@@ -34,6 +34,10 @@ inputs:
   predeploy-command:
     description: A predeploy command to be run before activating the releases, e.g. for migrating the database
     required: false
+  predeploy-command-detach-timeout:
+    description: Detach timeout for one-off task that runs predeploy command (h = hours, m = minutes, s = second, ms = milliseconds)
+    required: false
+    default: "10m"
 runs:
   using: "composite"
   steps:
@@ -65,7 +69,7 @@ runs:
           echo "Run predeploy command"
           first_app=${apps[0]}
           release_id_of_first_app=${apps_with_release_id[$first_app]}
-          task_id=$(sos --app "$first_app" task:run --release "$release_id_of_first_app" --entrypoint sh -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
+          task_id=$(sos --app "$first_app" task:run --detach-timeout ${{ inputs.predeploy-command-detach-timeout }} --release "$release_id_of_first_app" --entrypoint sh -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
 
           # Checking the expected SETOPS_SUCCESS log after task finished to ensure that all logs are collected
           sos --app "$first_app" log -n 50 --task "$task_id" | grep SETOPS_SUCCESS > /dev/null
