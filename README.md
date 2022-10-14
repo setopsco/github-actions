@@ -20,9 +20,9 @@ jobs:
         id: stages
         run: |
           if [ "$GITHUB_REF" == "refs/heads/staging" ]; then
-            echo '::set-output name=stages::staging'
+            echo 'stages=staging' >> $GITHUB_OUTPUT
           elif [ "$GITHUB_REF" == "refs/heads/production" ]; then
-            echo '::set-output name=stages::production'
+            echo 'stages=production' >> $GITHUB_OUTPUT
           else
             echo "⚠️ Could not determine stages for $GITHUB_REF"
             exit 1
@@ -49,7 +49,7 @@ jobs:
 
 You can deploy from one branch to multiple setops stages by setting the output in the `setops_stages` job to a space separated list of stages like this:
 ```
-   echo '::set-output name=stages::production demo'
+   echo 'stages=production demo' >> $GITHUB_OUTPUT
 ```
 
 

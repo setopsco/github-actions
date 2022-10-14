@@ -20,3 +20,5 @@ object-assign
  * strip-dirs | MIT (c) Shinnosuke Watanabe
  * https://github.com/shinnn/node-strip-dirs
 */
+
+/*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
