@@ -1,9 +1,12 @@
-name: 'test-build-and-deployment-action'
+name: "test-build-and-deployment-action"
 
 on:
   push:
     branches: [main]
   pull_request:
+
+permissions:
+  actions: read
 
 env:
   SETOPS_ORG: ${{ secrets.SETOPS_ORG }}
