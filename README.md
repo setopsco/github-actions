@@ -105,6 +105,8 @@ steps:
     setops_password: ${{ secrets.SETOPS_PASSWORD }}
 ```
 
+> :warning: **If you use Dependabot**: By default Dependabot does not have access to your Action secrets and merges & PR workflows will fail due to missing credentials. If you like grant Dependabot access to SetOps, add the secrets to the Dependabot Secrets in the repository settings as well.
+
 See the [action file](setup/action.yml) for all possible inputs.
 
 ### Action: `build-and-push-image`
