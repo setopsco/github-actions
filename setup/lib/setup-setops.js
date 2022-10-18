@@ -5,6 +5,7 @@ const path = require('path');
 
 // External
 const core = require('@actions/core');
+const github = require('@actions/github');
 const tc = require('@actions/tool-cache');
 const decompress = require('decompress');
 const decompressBzip2 = require('decompress-bzip2');
@@ -25,6 +26,8 @@ function mapArch(arch) {
   };
   return mappings[arch] || arch;
 }
+
+const triggeredByDependabot = github.context.actor == 'dependabot[bot]'
 
 async function downloadCLI(url) {
   core.debug(`Downloading SetOps CLI from ${url}`);
@@ -65,9 +68,9 @@ async function run() {
     const apiUrl = core.getInput('setops_api_url');
 
     if ((loginUsername || loginPassword || loginOrganization) && !(loginUsername && loginPassword && loginOrganization)) {
-      throw new Error(
-        `When providing setops_username, setops_password or setops_organization, all of them must be set`
-      );
+      const errorMsg = 'When providing setops_username, setops_password or setops_organization, all of them must be set.'
+      const dependabotHint = '\nThis run was triggered by Dependabot. If you want to grant Dependabot access to your SetOps credentials, add them to the dedicated Dependabot Secrets in the repository settings.'
+      throw new Error(errorMsg + (triggeredByDependabot) ? dependabotHint : '');
     }
 
     if (!apiUrl) {
