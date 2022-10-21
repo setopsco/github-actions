@@ -1,4 +1,4 @@
-name: 'test-build-and-deployment-action'
+name: "test-build-and-deployment-action"
 
 on:
   push:
@@ -58,3 +58,7 @@ jobs:
           setops-password: ${{ secrets.SETOPS_PASSWORD }}
           image-digest: ${{ needs.build.outputs.image-digest }}
           setops-organization: ${{ env.SETOPS_ORG }}
+          predeploy-command: echo "Hello World"
+          predeploy-command-detach-timeout: 300s
+          predeploy-command-cpu: 128
+          predeploy-command-memory: 128
