@@ -5,7 +5,7 @@ on:
       setops-api-domain:
         description: The SetOps API URL to connect to
         required: false
-        default: 'api.setops.co'
+        default: "api.setops.co"
         type: string
       setops-organization:
         description: The SetOps organization
@@ -25,6 +25,15 @@ on:
       predeploy-command:
         required: false
         type: string
+      predeploy-command-detach-timeout:
+        required: false
+        type: string
+      predeploy-command-cpu:
+        required: false
+        type: string
+      predeploy-command-memory:
+        type: string
+        required: false
       build-context:
         description: The build context / directory where the Dockerfile is located, defaults to '.'
         required: false
@@ -99,3 +108,6 @@ jobs:
           setops-password: ${{ secrets.setops-password }}
           image-digest: ${{ needs.build.outputs.image-digest }}
           predeploy-command: ${{ inputs.predeploy-command }}
+          predeploy-command-detach-timeout: ${{ inputs.predeploy-command-detach-timeout }}
+          predeploy-command-cpu: ${{ inputs.predeploy-command-cpu }}
+          predeploy-command-memory: ${{ inputs.predeploy-command-memory }}
