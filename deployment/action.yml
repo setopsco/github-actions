@@ -78,7 +78,10 @@ runs:
           resource_parameters=''
           [ ${#PREDEPLOY_COMMAND_CPU} -gt 0 ] && resource_parameters="$resource_parameters --cpu $PREDEPLOY_COMMAND_CPU"
           [ ${#PREDEPLOY_COMMAND_MEMORY} -gt 0 ] && resource_parameters="$resource_parameters --memory $PREDEPLOY_COMMAND_MEMORY"
-          task_id=$(sos --app "$first_app" task:run --detach-timeout ${{ inputs.predeploy-command-detach-timeout }} --release "$release_id_of_first_app" --entrypoint sh $resource_parameters -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
+
+          detach_timeout=''
+          [ ${#PREDEPLOY_DETACH_TIMEOUT} -gt 0 ] && detach_timeout="--detach-timeout $PREDEPLOY_DETACH_TIMEOUT"
+          task_id=$(sos --app "$first_app" task:run $detach_timeout --release "$release_id_of_first_app" --entrypoint sh $resource_parameters -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
 
           # Checking the expected SETOPS_SUCCESS log after task finished to ensure that all logs are collected
           sos --app "$first_app" log -n 50 --task "$task_id" | grep SETOPS_SUCCESS > /dev/null
@@ -121,4 +124,5 @@ runs:
 
         PREDEPLOY_COMMAND_CPU: ${{ inputs.predeploy-command-cpu }}
         PREDEPLOY_COMMAND_MEMORY: ${{ inputs.predeploy-command-memory }}
+        PREDEPLOY_DETACH_TIMEOUT: ${{ inputs.predeploy-command-detach-timeout }}
       shell: bash
