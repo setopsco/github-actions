@@ -56,6 +56,9 @@ on:
       build-secrets:
         description: Docker build secrets
         required: false
+      github-token:
+        description: GitHub token to reduce the risk of rate limits when downloading the requested release
+        required: false
 
 jobs:
   build:
@@ -82,6 +85,7 @@ jobs:
           build-cache-key-prefix: ${{ inputs.build-cache-key-prefix }}
           build-args: ${{ inputs.build-args }}
           build-secrets: ${{ secrets.build-secrets }}
+          github-token: ${{ secrets.github-token }}
 
   deploy:
     name: Setops Deployment
@@ -111,3 +115,4 @@ jobs:
           predeploy-command-detach-timeout: ${{ inputs.predeploy-command-detach-timeout }}
           predeploy-command-cpu: ${{ inputs.predeploy-command-cpu }}
           predeploy-command-memory: ${{ inputs.predeploy-command-memory }}
+          github-token: ${{ secrets.github-token }}

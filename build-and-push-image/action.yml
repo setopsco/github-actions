@@ -38,6 +38,9 @@ inputs:
   build-secrets:
     description: Docker build secrets
     required: false
+  github-token:
+    description: GitHub token to reduce the risk of rate limits when downloading the requested release
+    required: false
 
 outputs:
   image-digest:
@@ -82,13 +85,14 @@ runs:
         key: ${{ runner.os }}-buildx-${{ steps.get_date.outputs.date }}-${{ inputs.build-cache-key-prefix }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-buildx-${{ steps.get_date.outputs.date }}-${{ inputs.build-cache-key-prefix }}-
-    - name: "Install SetOps CLI"
+    - name: Install SetOps CLI
       uses: setopsco/github-actions/setup@v2
       with:
         setops_api_url: https://${{ inputs.setops-api-domain }}
         setops_organization: ${{ inputs.setops-organization }}
         setops_username: ${{ inputs.setops-username }}
         setops_password: ${{ inputs.setops-password }}
+        github_token: ${{ inputs.github-token }}
     - name: Build and push app
       id: build_app
       uses: docker/build-push-action@v3

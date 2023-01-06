@@ -34,6 +34,7 @@ jobs:
           setops-organization: ${{ env.SETOPS_ORG }}
           build-context: ./.github/test-resources
           build-args: GIT_SHA=${{ github.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: Setops Deployment
@@ -62,3 +63,4 @@ jobs:
           predeploy-command-detach-timeout: 300s
           predeploy-command-cpu: 128
           predeploy-command-memory: 128
+          github-token: ${{ secrets.GITHUB_TOKEN }}
