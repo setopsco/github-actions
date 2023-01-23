@@ -45,6 +45,7 @@ jobs:
       build-secrets: |
         A_BUILD_SECRET_REQUIRED_BY_YOUR_DOCKERFILE="${{ secrets.SECRET1 }}"
         ANOTHER_BUILD_SECRET="A plain string works, too - but this is not secret anymore :-)"
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 You can deploy from one branch to multiple setops stages by setting the output in the `setops_stages` job to a space separated list of stages like this:
@@ -52,6 +53,7 @@ You can deploy from one branch to multiple setops stages by setting the output i
    echo 'stages=production demo' >> $GITHUB_OUTPUT
 ```
 
+> :warning: **Github Rate Limit**: It is strongly recommended to provide the github-token secret to  reduce the risk of a rate limit error from the Github API during setup of the SetOps CLI!
 
 This workflow
 
@@ -83,6 +85,8 @@ The default configuration installs the latest version of SetOps CLI and a wrappe
 ```yaml
 steps:
 - uses: setopsco/github-actions/setup@v2
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 A specific version of SetOps CLI can be installed:
@@ -92,6 +96,7 @@ steps:
 - uses: setopsco/github-actions/setup@v2
   with:
     setops_version: 1.0.0
+    github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 Credentials for SetOps can be configured:
@@ -103,6 +108,7 @@ steps:
     setops_organization: <yourorganization>
     setops_username: my-ci-user@setops.co
     setops_password: ${{ secrets.SETOPS_PASSWORD }}
+    github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 > :warning: **If you use Dependabot**: By default Dependabot does not have access to your Action secrets and merges & PR workflows will fail due to missing credentials. If you like grant Dependabot access to SetOps, add the secrets to the Dependabot Secrets in the repository settings as well.
@@ -135,6 +141,7 @@ jobs:
           setops-project: <projectname>
           setops-stages: ${{ needs.setops-stages.outputs.stages }}
           setops-apps: web worker
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 See the [action file](build-and-push-image/action.yml) for all possible inputs.
@@ -173,6 +180,7 @@ deploy:
         setops-apps: web worker
         image-digest: <sha256:7df5b97245.....>
         predeploy-command: bin/rails db:migrate
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 See the [action file](deployment/action.yml) for all possible inputs.

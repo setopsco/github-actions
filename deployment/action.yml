@@ -44,17 +44,21 @@ inputs:
   predeploy-command-memory:
     description: Memory to provide to the predeploy command in MB. Defaults to the configured app memory if not passed in.
     required: false
+  github-token:
+    description: GitHub token to reduce the risk of rate limits when downloading the requested release
+    required: false
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: "Install Setops"
+    - name: Install Setops
       uses: setopsco/github-actions/setup@v2
       with:
         setops_api_url: https://${{ inputs.setops-api-domain }}
         setops_organization: ${{ inputs.setops-organization }}
         setops_username: ${{ inputs.setops-username }}
         setops_password: ${{ inputs.setops-password }}
-    - name: "Setops deployment"
+        github_token: ${{ inputs.github-token }}
+    - name: Setops deployment
       run: |
         shopt -s expand_aliases
         alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.setops-stage }}'
