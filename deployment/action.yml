@@ -116,7 +116,7 @@ runs:
           for i in $(seq 1 $max_times); do
             sleep 5
 
-            if sos app:ps $app | grep -w -E "$release_id.*RUNNING.*$expected_health_status"; then break; fi
+            if sos app:ps $app | grep -w -E "[a-z0-9]+\s+$release_id\s+RUNNING\s+$expected_health_status"; then break; fi
             echo "Continue waiting for $app release $release_id"
 
             if [ $i = $max_times ]; then exit 1; fi
