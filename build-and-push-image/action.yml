@@ -24,6 +24,10 @@ inputs:
     description: The SetOps API domain to connect to
     default: "api.setops.co"
     required: false
+  image-tag:
+    description: The tag with which the image(s) should be tagged e.g. v1.1.0 (defaults to commit hash)
+    default: ${{ github.sha }}
+    required: false
   build-context:
     description: The build context / directory where the Dockerfile is located, defaults to '.'
     required: false
@@ -40,9 +44,9 @@ inputs:
     required: false
 
 outputs:
-  image-digest:
-    value: ${{ steps.build_app.outputs.digest }}
-    description: The digest of the image that can be referred to when creating releases
+  image-tag:
+    value: ${{ steps.build_app.outputs.image-tag }}
+    description: The tag of the image to be deployed
   stages-json:
     value: ${{ steps.prepare-stages-variables.outputs.stages-json }}
     description: The given stages in stages format, so that they can be used as a matrix workflow input
@@ -56,7 +60,7 @@ runs:
         declare -a tag_names
         for stage in ${{ inputs.setops-stages }}; do
           for app in ${{ inputs.setops-apps }}; do
-            tag_names+=("${{ inputs.setops-api-domain }}/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:latest")
+            tag_names+=("${{ inputs.setops-api-domain }}/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:${{ inputs.image-tag }}")
           done
         done
 

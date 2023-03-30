@@ -14,9 +14,6 @@ inputs:
   setops-password:
     description: The SetOps password, usually obtained via secrets.SETOPS_PASSWORD
     required: true
-  image-digest:
-    description: The image digest that was returned when pushing the image to the SetOps registry
-    required: true
   setops-stage:
     description: The setops stage for the deployment, e.g. production
     required: true
@@ -27,6 +24,12 @@ inputs:
     description: The SetOps API URL to connect to
     default: "api.setops.co"
     required: false
+  setops-definition:
+    description: The SetOps definition to be applied (leave empty if only new images should be applied)
+    required: false
+  image-tag:
+    description: The image tag that was used to tag the image to the SetOps registry
+    required: true
   number-of-retries-to-wait-for-successful-deployment:
     description: Max. number of times to wait for a successful deployment (we sleep for 5 seconds between tries, so 12 equals 1 minute)
     required: false
@@ -59,22 +62,29 @@ runs:
         shopt -s expand_aliases
         alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.setops-stage }}'
 
-        sos changeset:discard || true
-
         read -r -a apps <<< "${{ inputs.setops-apps }}"
 
-        declare -A apps_with_release_id
+        COUNT=1
         for app in "${apps[@]}"; do
-          apps_with_release_id[$app]=$(sos --app "$app" release:create ${{ inputs.image-digest }} | grep -o 'ReleaseID.*' | grep -o '[0-9].*')
+          apps_with_image_tags="${apps_with_image_tags}app=${{ inputs.image-tag }}"
+          if [[ "#apps[@]" != "$COUNT" ]]; then
+            apps_with_image_tags="${apps_with_image_tags},"
+          fi
+          ((COUNT+=1))
         done
+        
+        # TODO: Remove
+        echo $apps_with_image_tags
 
-        echo "Changeset for creating releases"
-        sos changeset:commit
+        # apply the given definition so the redeploy command will not fail e.g. for a missing app or service
+        if [ ! -z $inputs.setops-definition ]; then
+          sos stage:apply -f ${{ inputs.setops-definition }} --auto-approve
+        fi
 
         if [ ${#PREDEPLOY_COMMAND} -gt 0 ]; then
           echo "Run predeploy command"
           first_app=${apps[0]}
-          release_id_of_first_app=${apps_with_release_id[$first_app]}
+          release_id_of_first_app=${apps_with_image_tags[$first_app]}
           resource_parameters=''
           [ ${#PREDEPLOY_COMMAND_CPU} -gt 0 ] && resource_parameters="$resource_parameters --cpu $PREDEPLOY_COMMAND_CPU"
           [ ${#PREDEPLOY_COMMAND_MEMORY} -gt 0 ] && resource_parameters="$resource_parameters --memory $PREDEPLOY_COMMAND_MEMORY"
@@ -89,18 +99,13 @@ runs:
           echo "No predeploy command has been configured, skipping."
         fi
 
-        for app in "${apps[@]}"; do
-          release_id=${apps_with_release_id[$app]}
-          sos --app "$app" release:activate "$release_id"
-        done
-
-        echo "Changeset for activating releases"
-        sos changeset:commit
+        # apply the updated image-tags
+        sos stage:apply -t $apps_with_image_tags --auto-approve
 
         echo "Waiting for successful releases"
         max_times=${{ inputs.number-of-retries-to-wait-for-successful-deployment }}
         for app in "${apps[@]}"; do
-          release_id=${apps_with_release_id[$app]}
+          release_id=${apps_with_image_tags[$app]}
 
           # Checking for health state of HEALTHY when health check is configured or otherwise accept UNKNOWN
           app_info=$(sos app:info $app)

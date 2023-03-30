@@ -48,6 +48,15 @@ on:
         description: Docker build args
         required: false
         type: string
+      setops-definition:
+        description: Path to the SetOps definition that should be applied in the deployment
+        required: false
+        type: string
+      image-tag:
+        description: The tag with which the image(s) should be tagged e.g. v1.1.0, defaults to commit hash
+        default: ${{ github.sha }}
+        required: false
+        type: string
     secrets:
       setops-username:
         required: true
@@ -62,7 +71,7 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-latest
     outputs:
-      image-digest: ${{ steps.build-and-push-image.outputs.image-digest }}
+      image-tag: ${{ steps.build-and-push-image.outputs.image-tag }}
       stages-json: ${{ steps.build-and-push-image.outputs.stages-json }}
     steps:
       - name: "Checkout repository"
@@ -78,6 +87,8 @@ jobs:
           setops-apps: ${{ inputs.setops-apps }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
+          setops-definition: ${{ inputs.setops-definition }}
+          image-tag: ${{ inputs.image-tag }}
           build-context: ${{ inputs.build-context }}
           build-cache-key-prefix: ${{ inputs.build-cache-key-prefix }}
           build-args: ${{ inputs.build-args }}
@@ -106,7 +117,8 @@ jobs:
           setops-apps: ${{ inputs.setops-apps }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
-          image-digest: ${{ needs.build.outputs.image-digest }}
+          setops-definition: ${{ inputs.setops-definition }}
+          image-tag: ${{ inputs.image-tag }}
           predeploy-command: ${{ inputs.predeploy-command }}
           predeploy-command-detach-timeout: ${{ inputs.predeploy-command-detach-timeout }}
           predeploy-command-cpu: ${{ inputs.predeploy-command-cpu }}

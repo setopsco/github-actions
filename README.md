@@ -121,7 +121,7 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-latest
     outputs:
-      image-digest: ${{ steps.build_and_push_image.outputs.image-digest }}
+      image-tag: ${{ steps.build_and_push_image.outputs.image-tag }}
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v3
@@ -171,7 +171,7 @@ deploy:
         setops-project: <projectname>
         setops-stage: <stagename>
         setops-apps: web worker
-        image-digest: <sha256:7df5b97245.....>
+        image-tag: ${{ github.sha }}
         predeploy-command: bin/rails db:migrate
 ```
 

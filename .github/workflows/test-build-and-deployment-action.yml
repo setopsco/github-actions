@@ -17,7 +17,7 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-latest
     outputs:
-      image-digest: ${{ steps.build-and-push-image.outputs.image-digest }}
+      image-tag: ${{ steps.build-and-push-image.outputs.image-tag }}
       stages-json: ${{ steps.build-and-push-image.outputs.stages-json }}
     steps:
       - name: "Checkout repository"
@@ -56,7 +56,7 @@ jobs:
           setops-project: ${{ env.SETOPS_PROJECT }}
           setops-username: ${{ env.SETOPS_USERNAME }}
           setops-password: ${{ secrets.SETOPS_PASSWORD }}
-          image-digest: ${{ needs.build.outputs.image-digest }}
+          image-tag: ${{ needs.build.outputs.image-tag }}
           setops-organization: ${{ env.SETOPS_ORG }}
           predeploy-command: echo "Hello World"
           predeploy-command-detach-timeout: 300s
