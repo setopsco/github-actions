@@ -64,34 +64,21 @@ runs:
 
         read -r -a apps <<< "${{ inputs.setops-apps }}"
 
-        COUNT=1
-        for app in "${apps[@]}"; do
-          apps_with_image_tags="${apps_with_image_tags}app=${{ inputs.image-tag }}"
-          if [[ "#apps[@]" != "$COUNT" ]]; then
-            apps_with_image_tags="${apps_with_image_tags},"
-          fi
-          ((COUNT+=1))
-        done
-        
-        # TODO: Remove
-        echo $apps_with_image_tags
-
-        # apply the given definition so the redeploy command will not fail e.g. for a missing app or service
-        if [ ! -z $inputs.setops-definition ]; then
-          sos stage:apply -f ${{ inputs.setops-definition }} --auto-approve
+        # apply the given definition so the predeploy command will not fail e.g. for a missing app or service
+        if [ ! -z "$SETOPS_DEFINITION" ]; then
+          sos stage:apply -f "$SETOPS_DEFINITION" --auto-approve
         fi
 
         if [ ${#PREDEPLOY_COMMAND} -gt 0 ]; then
           echo "Run predeploy command"
           first_app=${apps[0]}
-          release_id_of_first_app=${apps_with_image_tags[$first_app]}
           resource_parameters=''
           [ ${#PREDEPLOY_COMMAND_CPU} -gt 0 ] && resource_parameters="$resource_parameters --cpu $PREDEPLOY_COMMAND_CPU"
           [ ${#PREDEPLOY_COMMAND_MEMORY} -gt 0 ] && resource_parameters="$resource_parameters --memory $PREDEPLOY_COMMAND_MEMORY"
 
           detach_timeout=''
           [ ${#PREDEPLOY_DETACH_TIMEOUT} -gt 0 ] && detach_timeout="--detach-timeout $PREDEPLOY_DETACH_TIMEOUT"
-          task_id=$(sos --app "$first_app" task:run $detach_timeout --release "$release_id_of_first_app" --entrypoint sh $resource_parameters -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
+          task_id=$(sos --app "$first_app" task:run $detach_timeout --image-tag "$IMAGE_TAG" --entrypoint sh $resource_parameters -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
 
           # Checking the expected SETOPS_SUCCESS log after task finished to ensure that all logs are collected
           sos --app "$first_app" log -n 50 --task "$task_id" | grep SETOPS_SUCCESS > /dev/null
@@ -100,13 +87,20 @@ runs:
         fi
 
         # apply the updated image-tags
+        COUNT=1
+        apps_with_image_tags=""
+        for app in "${apps[@]}"; do
+          apps_with_image_tags="${apps_with_image_tags}${app}=${{ inputs.image-tag }}"
+          if [[ "#apps[@]" != "$COUNT" ]]; then
+            apps_with_image_tags="${apps_with_image_tags},"
+          fi
+          ((COUNT+=1))
+        done
         sos stage:apply -t $apps_with_image_tags --auto-approve
 
-        echo "Waiting for successful releases"
+        echo "Waiting for successful deployment"
         max_times=${{ inputs.number-of-retries-to-wait-for-successful-deployment }}
         for app in "${apps[@]}"; do
-          release_id=${apps_with_image_tags[$app]}
-
           # Checking for health state of HEALTHY when health check is configured or otherwise accept UNKNOWN
           app_info=$(sos app:info $app)
           expected_health_status=UNKNOWN
@@ -117,8 +111,8 @@ runs:
           for i in $(seq 1 $max_times); do
             sleep 5
 
-            if sos app:ps $app | grep -w -E "$release_id.*RUNNING.*$expected_health_status"; then break; fi
-            echo "Continue waiting for $app release $release_id"
+            if sos --app $app task | grep -w -E "$IMAGE_TAG.*RUNNING.*$expected_health_status"; then break; fi
+            echo "Continue waiting for $app with image tag $IMAGE_TAG"
 
             if [ $i = $max_times ]; then exit 1; fi
           done
@@ -126,7 +120,6 @@ runs:
       env:
         # Providing it as an env variable to prevent quoting issues
         PREDEPLOY_COMMAND: ${{ inputs.predeploy-command }}
-
         PREDEPLOY_COMMAND_CPU: ${{ inputs.predeploy-command-cpu }}
         PREDEPLOY_COMMAND_MEMORY: ${{ inputs.predeploy-command-memory }}
         PREDEPLOY_DETACH_TIMEOUT: ${{ inputs.predeploy-command-detach-timeout }}
