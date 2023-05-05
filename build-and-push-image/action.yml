@@ -43,7 +43,7 @@ inputs:
     description: Docker build secrets
     required: false
   github-token:
-    description: GitHub token to reduce the risk of rate limits when downloading the requested release
+    description: GitHub token to reduce the risk of rate limits when downloading the requested SetOps CLI
     required: false
 
 outputs:

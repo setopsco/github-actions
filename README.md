@@ -150,10 +150,10 @@ See the [action file](build-and-push-image/action.yml) for all possible inputs.
 
 The action
 
-* Creates releases for all configured apps
+* Pushes images for all configured apps
 * Runs the pre-deploy command within the first of the configured apps (`web` here)
-* Activates all releases
-* Waits until all releases are healthy (if a health check is configured)
+* Activates all images
+* Waits until all new tasks are healthy (if a health check is configured)
 
 You can also use the action without the workflow:
 
