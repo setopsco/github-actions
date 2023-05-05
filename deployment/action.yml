@@ -73,7 +73,7 @@ runs:
         read -r -a apps <<< "${{ inputs.setops-apps }}"
 
         # apply the given definition so the predeploy command will not fail e.g. for a missing app or service
-        if [ ! -z "$SETOPS_DEFINITION" ]; then
+        if [ ${#SETOPS_DEFINITION} -gt 0 ]; then
           sos stage:apply -f "$SETOPS_DEFINITION" --auto-approve
         fi
 
@@ -86,7 +86,7 @@ runs:
 
           detach_timeout=''
           [ ${#PREDEPLOY_DETACH_TIMEOUT} -gt 0 ] && detach_timeout="--detach-timeout $PREDEPLOY_DETACH_TIMEOUT"
-          task_id=$(sos --app "$first_app" task:run $detach_timeout --image-tag "$IMAGE_TAG" --entrypoint sh $resource_parameters -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
+          task_id=$(sos --app "$first_app" task:run $detach_timeout --image-tag "${{ inputs.image-tag }}" --entrypoint sh $resource_parameters -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
 
           # Checking the expected SETOPS_SUCCESS log after task finished to ensure that all logs are collected
           sos --app "$first_app" log -n 50 --task "$task_id" | grep SETOPS_SUCCESS > /dev/null
@@ -119,8 +119,8 @@ runs:
           for i in $(seq 1 $max_times); do
             sleep 5
 
-            if sos --app $app task | grep -w -E "$IMAGE_TAG.*RUNNING.*$expected_health_status"; then break; fi
-            echo "Continue waiting for $app with image tag $IMAGE_TAG"
+            if sos --app $app task | grep -w -E "${{ inputs.image-tag }}.*RUNNING.*$expected_health_status"; then break; fi
+            echo "Continue waiting for $app with image tag ${{ inputs.image-tag }}"
 
             if [ $i = $max_times ]; then exit 1; fi
           done
@@ -131,4 +131,5 @@ runs:
         PREDEPLOY_COMMAND_CPU: ${{ inputs.predeploy-command-cpu }}
         PREDEPLOY_COMMAND_MEMORY: ${{ inputs.predeploy-command-memory }}
         PREDEPLOY_DETACH_TIMEOUT: ${{ inputs.predeploy-command-detach-timeout }}
+        SETOPS_DEFINITION: ${{ inputs.setops-definition }}
       shell: bash
