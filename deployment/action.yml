@@ -67,6 +67,7 @@ runs:
         github_token: ${{ inputs.github-token }}
     - name: Setops deployment
       run: |
+        set -x
         shopt -s expand_aliases
         alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.setops-stage }}'
 
