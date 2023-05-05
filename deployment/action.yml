@@ -32,6 +32,7 @@ inputs:
     required: false
   image-tag:
     description: The image tag that was used to tag the image to the SetOps registry
+    default: ${{ github.sha }}
     required: true
   number-of-retries-to-wait-for-successful-deployment:
     description: Max. number of times to wait for a successful deployment (we sleep for 5 seconds between tries, so 12 equals 1 minute)

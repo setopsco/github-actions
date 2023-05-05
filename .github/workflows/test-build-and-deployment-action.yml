@@ -86,7 +86,6 @@ jobs:
           setops-version: v2.0.0-rc1
           setops-api-domain: ${{ secrets.SETOPS_API_DOMAIN }}
           setops-definition: .github/test-resources/stage.setops.yaml
-          image-tag: ${{ needs.build.outputs.image-tag }}
           setops-organization: ${{ env.SETOPS_ORG }}
           predeploy-command: echo "Hello World"
           predeploy-command-detach-timeout: 300s

@@ -49,9 +49,9 @@ inputs:
     description: GitHub token to reduce the risk of rate limits when downloading the requested SetOps CLI
     required: false
 outputs:
-  image-tag:
-    value: ${{ steps.build_app.outputs.image-tag }}
-    description: The tag of the image to be deployed
+  image-digest:
+    value: ${{ steps.build_app.outputs.digest }}
+    description: The digest of the image that can was pushed
   stages-json:
     value: ${{ steps.prepare-stages-variables.outputs.stages-json }}
     description: The given stages in stages format, so that they can be used as a matrix workflow input
