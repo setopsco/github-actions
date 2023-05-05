@@ -1,9 +1,9 @@
 const { Octokit } = require('@octokit/rest');
 const semver = require('semver');
 
-const octokit = new Octokit();
-
-async function getDownloadUrl(versionConstraint, os, arch) {
+async function getDownloadUrl(versionConstraint, os, arch, githubToken) {
+  octokitOptions = githubToken ? { auth: githubToken } : {}
+  const octokit = new Octokit(octokitOptions);
   const response = await octokit.repos.listReleases({ owner: "setopsco", repo: "releases" });
   const releases = response.data
   const releaseVersions = releases.map(release => release.tag_name.substring(1)) // remove the "v" in the version
