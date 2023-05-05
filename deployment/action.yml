@@ -68,7 +68,6 @@ runs:
         github_token: ${{ inputs.github-token }}
     - name: Setops deployment
       run: |
-        set -x
         shopt -s expand_aliases
         alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.setops-stage }}'
 
@@ -101,7 +100,7 @@ runs:
         apps_with_image_tags=""
         for app in "${apps[@]}"; do
           apps_with_image_tags="${apps_with_image_tags}${app}=${{ inputs.image-tag }}"
-          if [[ "#apps[@]" != "$COUNT" ]]; then
+          if [[ "${#apps[@]}" != "$COUNT" ]]; then
             apps_with_image_tags="${apps_with_image_tags},"
           fi
           ((COUNT+=1))
