@@ -111,9 +111,9 @@ runs:
         max_times=${{ inputs.number-of-retries-to-wait-for-successful-deployment }}
         for app in "${apps[@]}"; do
           # Checking for health state of HEALTHY when health check is configured or otherwise accept UNKNOWN
-          app_info=$(sos app:info $app)
+          task_info=$(sos --app $app task)
           expected_health_status=UNKNOWN
-          if echo "$app_info" | grep -A1  "Health Check:" | grep -q "   Command:"; then
+          if echo "$task_info" | grep -A1  "Health Check:" | grep -q "   Command:"; then
             expected_health_status=HEALTHY
           fi
 
