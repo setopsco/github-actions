@@ -32,6 +32,7 @@ jobs:
           setops-password: ${{ secrets.SETOPS_PASSWORD }}
           setops-project: ${{ env.SETOPS_PROJECT }}
           setops-organization: ${{ env.SETOPS_ORG }}
+          setops-version: v2.0.0-rc1
           build-context: ./.github/test-resources
           build-args: GIT_SHA=${{ github.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -57,6 +58,7 @@ jobs:
           setops-project: ${{ env.SETOPS_PROJECT }}
           setops-username: ${{ env.SETOPS_USERNAME }}
           setops-password: ${{ secrets.SETOPS_PASSWORD }}
+          setops-version: v2.0.0-rc1
           image-tag: ${{ needs.build.outputs.image-tag }}
           setops-organization: ${{ env.SETOPS_ORG }}
           predeploy-command: echo "Hello World"
