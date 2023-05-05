@@ -57,6 +57,10 @@ on:
         default: ${{ github.sha }}
         required: false
         type: string
+      setops-version:
+        description: "The version of SetOps CLI to install. Instead of a full version string you can also specify a constraint string. Examples are: `<0.1.5`, `~0.1.4`, `0.1.x` (all three installing the latest available 0.1.4 version). Defaults to `latest`."
+        required: false
+        type: string
     secrets:
       setops-username:
         required: true
@@ -91,6 +95,7 @@ jobs:
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
           setops-definition: ${{ inputs.setops-definition }}
+          setops-version: ${{ inputs.setops-version }}
           image-tag: ${{ inputs.image-tag }}
           build-context: ${{ inputs.build-context }}
           build-cache-key-prefix: ${{ inputs.build-cache-key-prefix }}
@@ -122,6 +127,7 @@ jobs:
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
           setops-definition: ${{ inputs.setops-definition }}
+          setops-version: ${{ inputs.setops-version }}
           image-tag: ${{ inputs.image-tag }}
           predeploy-command: ${{ inputs.predeploy-command }}
           predeploy-command-detach-timeout: ${{ inputs.predeploy-command-detach-timeout }}

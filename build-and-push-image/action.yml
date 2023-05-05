@@ -24,6 +24,9 @@ inputs:
     description: The SetOps API domain to connect to
     default: "api.setops.co"
     required: false
+  setops-version:
+    description: "The version of SetOps CLI to install. Instead of a full version string you can also specify a constraint string. Examples are: `<0.1.5`, `~0.1.4`, `0.1.x` (all three installing the latest available 0.1.4 version). Defaults to `latest`."
+    required: false
   image-tag:
     description: The tag with which the image(s) should be tagged e.g. v1.1.0 (defaults to commit hash)
     default: ${{ github.sha }}
@@ -45,7 +48,6 @@ inputs:
   github-token:
     description: GitHub token to reduce the risk of rate limits when downloading the requested SetOps CLI
     required: false
-
 outputs:
   image-tag:
     value: ${{ steps.build_app.outputs.image-tag }}
@@ -96,6 +98,7 @@ runs:
         setops_organization: ${{ inputs.setops-organization }}
         setops_username: ${{ inputs.setops-username }}
         setops_password: ${{ inputs.setops-password }}
+        setops_version: ${{ inputs.setops-version }}
         github_token: ${{ inputs.github-token }}
     - name: Build and push app
       id: build_app
