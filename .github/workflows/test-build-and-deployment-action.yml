@@ -28,6 +28,7 @@ jobs:
           setops_organization: ${{ secrets.SETOPS_ORG }}
           setops_password: ${{ secrets.SETOPS_PASSWORD }}
           setops_username: github-actions-setup@setops.co
+          setops_version: v2.0.0-rc1
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Stage
