@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        setops_versions: ["0.10.3", latest]
+        setops_versions: ["0.10.3", latest, next]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -23,12 +23,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
-        if: ${{ matrix['setops_versions'] != 'latest' }}
+        if: ${{ matrix['setops_versions'] != 'latest' && matrix['setops_versions'] != 'next' }}
         run: |
           setops version | grep "CLI Version:      ${{ matrix['setops_versions']}}"
 
       - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
-        if: ${{ matrix['setops_versions'] == 'latest' }}
+        if: ${{ matrix['setops_versions'] == 'latest' || matrix['setops_versions'] == 'next' }}
         run: |
           setops version | grep "CLI Version:      "
 
