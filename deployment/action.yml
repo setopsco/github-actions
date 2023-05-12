@@ -115,7 +115,7 @@ runs:
         for app in "${apps[@]}"; do
           # Checking for health state of HEALTHY when health check is configured or otherwise accept UNKNOWN
           definition=$(sos stage:dump)
-          if echo "$definition" | yq -e ".apps[\"$app\"].container.health_check"; then
+          if echo "$definition" | yq -e ".apps[\"$app\"].container.health_check" &> /dev/null; then
             echo "Health check detected for app $app - waiting for status RUNNING and health check status HEALTHY"
             expected_health_status=HEALTHY
           else
