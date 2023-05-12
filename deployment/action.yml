@@ -66,6 +66,9 @@ runs:
         setops_password: ${{ inputs.setops-password }}
         setops_version: ${{ inputs.setops-version }}
         github_token: ${{ inputs.github-token }}
+    - name: Install yq
+      run: sudo snap install yq
+      shell: bash
     - name: Setops deployment
       run: |
         shopt -s expand_aliases
@@ -111,10 +114,13 @@ runs:
         max_times=${{ inputs.number-of-retries-to-wait-for-successful-deployment }}
         for app in "${apps[@]}"; do
           # Checking for health state of HEALTHY when health check is configured or otherwise accept UNKNOWN
-          task_info=$(sos --app $app task)
-          expected_health_status=UNKNOWN
-          if echo "$task_info" | grep -A1  "Health Check:" | grep -q "   Command:"; then
+          definition=$(sos stage:dump)
+          if echo "$definition" | yq -e ".apps[\"$app\"].container.health_check"; then
+            echo "Health check detected for app $app - waiting for status RUNNING and health check status HEALTHY"
             expected_health_status=HEALTHY
+          else
+            echo "No health check detected for app $app - waiting for status RUNNING only"
+            expected_health_status=UNKNOWN
           fi
 
           for i in $(seq 1 $max_times); do
