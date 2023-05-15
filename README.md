@@ -127,7 +127,7 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-latest
     outputs:
-      image-digest: ${{ steps.build_and_push_image.outputs.image-digest }}
+      image-tag: ${{ steps.build_and_push_image.outputs.image-tag }}
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v3
@@ -150,10 +150,10 @@ See the [action file](build-and-push-image/action.yml) for all possible inputs.
 
 The action
 
-* Creates releases for all configured apps
+* Pushes images for all configured apps
 * Runs the pre-deploy command within the first of the configured apps (`web` here)
-* Activates all releases
-* Waits until all releases are healthy (if a health check is configured)
+* Activates all images
+* Waits until all new tasks are healthy (if a health check is configured)
 
 You can also use the action without the workflow:
 
@@ -178,7 +178,7 @@ deploy:
         setops-project: <projectname>
         setops-stage: <stagename>
         setops-apps: web worker
-        image-digest: <sha256:7df5b97245.....>
+        image-tag: ${{ github.sha }}
         predeploy-command: bin/rails db:migrate
         github-token: ${{ secrets.GITHUB_TOKEN }}
 ```

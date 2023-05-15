@@ -20,7 +20,7 @@ inputs:
     default: https://api.setops.co
     required: false
   github_token:
-    description: GitHub token to reduce the risk of rate limits when downloading the requested release
+    description: GitHub token to reduce the risk of rate limits when downloading the requested SetOps CLI
     required: false
 runs:
   using: node16
