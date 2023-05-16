@@ -94,7 +94,6 @@ jobs:
           setops-apps: ${{ inputs.setops-apps }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
-          setops-definition: ${{ inputs.setops-definition }}
           setops-version: ${{ inputs.setops-version }}
           image-tag: ${{ inputs.image-tag }}
           build-context: ${{ inputs.build-context }}
