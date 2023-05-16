@@ -29,7 +29,7 @@ jobs:
           fi
 
   setops-deployment:
-    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v2
+    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v3
     with:
       setops-organization: <yourorganization>
       setops-stages: ${{ needs.setops-stages.outputs.stages }}
@@ -84,7 +84,7 @@ The default configuration installs the latest version of SetOps CLI and a wrappe
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v3
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -93,7 +93,7 @@ A specific version of SetOps CLI can be installed:
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v3
   with:
     setops_version: 1.0.0
     github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -103,7 +103,7 @@ Credentials for SetOps can be configured:
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v3
   with:
     setops_organization: <yourorganization>
     setops_username: my-ci-user@setops.co
@@ -133,7 +133,7 @@ jobs:
         uses: actions/checkout@v3
       - name: "Build image and push it to SetOps image registry"
         id: build_and_push_image
-        uses: setopsco/github-actions/build-and-push-image@v2
+        uses: setopsco/github-actions/build-and-push-image@v3
         with:
           setops-organization: <yourorganization>
           setops-username: ${{ secrets.SETOPS_USER }}
@@ -170,7 +170,7 @@ deploy:
       uses: actions/checkout@v3
     - name: "Deploy project on SetOps"
       id: deploy
-      uses: setopsco/github-actions/deployment@v2
+      uses: setopsco/github-actions/deployment@v3
       with:
         setops-organization: <yourorganization>
         setops-username: ${{ secrets.SETOPS_USER }}
