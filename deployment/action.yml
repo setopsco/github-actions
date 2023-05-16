@@ -78,6 +78,7 @@ runs:
 
         # apply the given definition so the predeploy command will not fail e.g. for a missing app or service
         if [ ${#SETOPS_DEFINITION} -gt 0 ]; then
+          echo "Apply given stage definition: $SETOPS_DEFINITION"
           sos stage:apply -f "$SETOPS_DEFINITION" --auto-approve
         fi
 
@@ -92,13 +93,12 @@ runs:
           [ ${#PREDEPLOY_DETACH_TIMEOUT} -gt 0 ] && detach_timeout="--detach-timeout $PREDEPLOY_DETACH_TIMEOUT"
           task_id=$(sos --app "$first_app" task:run $detach_timeout --image-tag "${{ inputs.image-tag }}" --entrypoint sh $resource_parameters -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
 
-          # Checking the expected SETOPS_SUCCESS log after task finished to ensure that all logs are collected
+          echo "Task finished. Checking the expected SETOPS_SUCCESS log to ensure that all logs are collected"
           sos --app "$first_app" log -n 50 --task "$task_id" | grep SETOPS_SUCCESS > /dev/null
         else
           echo "No predeploy command has been configured, skipping."
         fi
 
-        # apply the updated image-tags
         COUNT=1
         apps_with_image_tags=""
         for app in "${apps[@]}"; do
@@ -108,6 +108,7 @@ runs:
           fi
           ((COUNT+=1))
         done
+        echo "Apply the updated image-tags: ${apps_with_image_tags}"
         sos stage:apply -t $apps_with_image_tags --auto-approve
 
         echo "Waiting for successful deployment"
