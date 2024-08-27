@@ -92,7 +92,7 @@ runs:
         restore-keys: |
           ${{ runner.os }}-buildx-${{ steps.get_date.outputs.date }}-${{ inputs.build-cache-key-prefix }}-
     - name: Install SetOps CLI
-      uses: setopsco/github-actions/setup@v3
+      uses: setopsco/github-actions/setup@v4
       with:
         setops_api_url: https://${{ inputs.setops-api-domain }}
         setops_organization: ${{ inputs.setops-organization }}
