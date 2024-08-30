@@ -5,6 +5,7 @@ const path = require('path');
 
 // External
 const core = require('@actions/core');
+const github = require('@actions/github');
 const tc = require('@actions/tool-cache');
 const decompress = require('decompress');
 const decompressBzip2 = require('decompress-bzip2');
@@ -26,9 +27,11 @@ function mapArch(arch) {
   return mappings[arch] || arch;
 }
 
-async function downloadCLI(url) {
+const triggeredByDependabot = github.context.actor == 'dependabot[bot]'
+
+async function downloadCLI(url, githubToken) {
   core.debug(`Downloading SetOps CLI from ${url}`);
-  const pathToDownload = await tc.downloadTool(url);
+  const pathToDownload = await tc.downloadTool(url, undefined, `token ${githubToken}`);
 
   const pathToCLI = await fs.mkdtemp(path.join(os.tmpdir(), 'setops-'));
 
@@ -63,11 +66,12 @@ async function run() {
     const loginUsername = core.getInput('setops_username');
     const loginPassword = core.getInput('setops_password');
     const apiUrl = core.getInput('setops_api_url');
+    const githubToken = core.getInput('github_token');
 
     if ((loginUsername || loginPassword || loginOrganization) && !(loginUsername && loginPassword && loginOrganization)) {
-      throw new Error(
-        `When providing setops_username, setops_password or setops_organization, all of them must be set`
-      );
+      const errorMsg = 'When providing setops_username, setops_password or setops_organization, all of them must be set.'
+      const dependabotHint = '\nThis run was triggered by Dependabot. If you want to grant Dependabot access to your SetOps credentials, add them to the dedicated Dependabot Secrets in the repository settings.'
+      throw new Error(errorMsg + (triggeredByDependabot ? dependabotHint : ''));
     }
 
     if (!apiUrl) {
@@ -77,13 +81,13 @@ async function run() {
     }
 
     core.debug(`Getting download url for SetOps version ${version}: ${osPlatform} ${osArch}`);
-    const downloadUrl = await releases.getDownloadUrl(version, osPlatform, osArch);
+    const downloadUrl = await releases.getDownloadUrl(version, osPlatform, osArch, githubToken);
     if (!downloadUrl) {
       throw new Error(`SetOps version ${version} not available for ${osPlatform} and ${osArch}`);
     }
 
     // Download requested version
-    const pathToCLI = await downloadCLI(downloadUrl);
+    const pathToCLI = await downloadCLI(downloadUrl, githubToken);
 
     // Add to path
     core.addPath(pathToCLI);

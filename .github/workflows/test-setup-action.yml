@@ -1,4 +1,4 @@
-name: 'test-setup-action'
+name: test-setup-action
 
 on:
   push:
@@ -7,74 +7,77 @@ on:
 
 jobs:
   setops-versions-latest:
-    name: 'SetOps Versions'
+    name: SetOps Versions
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        setops_versions: ["0.10.3", latest]
+        setops_versions: ["0.10.3", latest, next]
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup SetOps - ${{ matrix['setops_versions'] }}
-      uses: ./setup
-      with:
-        setops_version: ${{ matrix['setops_versions'] }}
+      - name: Setup SetOps - ${{ matrix['setops_versions'] }}
+        uses: ./setup
+        with:
+          setops_version: ${{ matrix['setops_versions'] }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
-      if: ${{ matrix['setops_versions'] != 'latest' }}
-      run: |
-        setops version | grep "CLI Version:      ${{ matrix['setops_versions']}}"
+      - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
+        if: ${{ matrix['setops_versions'] != 'latest' && matrix['setops_versions'] != 'next' }}
+        run: |
+          setops version | grep "CLI Version:      ${{ matrix['setops_versions']}}"
 
-    - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
-      if: ${{ matrix['setops_versions'] == 'latest' }}
-      run: |
-        setops version | grep "CLI Version:      "
+      - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
+        if: ${{ matrix['setops_versions'] == 'latest' || matrix['setops_versions'] == 'next' }}
+        run: |
+          setops version | grep "CLI Version:      "
 
   setops-versions-constraints:
-    name: 'SetOps Versions Constraints'
+    name: SetOps Versions Constraints
     runs-on: ubuntu-latest
     strategy:
       matrix:
         setops_versions: [~0.9, 0.9.x, <0.10.0]
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup SetOps - ${{ matrix['setops_versions'] }}
-      uses: ./setup
-      with:
-        setops_version: ${{ matrix['setops_versions'] }}
+      - name: Setup SetOps - ${{ matrix['setops_versions'] }}
+        uses: ./setup
+        with:
+          setops_version: ${{ matrix['setops_versions'] }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
-      run: |
-        setops version | grep "CLI Version:      0\.9"
+      - name: Validate SetOps Version - ${{ matrix['setops_versions'] }}
+        run: |
+          setops version | grep "CLI Version:      0\.9"
 
   setops-with-login:
-    name: 'SetOps Credentials'
+    name: SetOps Credentials
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup SetOps
-      uses: ./setup
-      with:
-        setops_api_url: ${{ secrets.SETOPS_API_URL }}
-        setops_organization: dev
-        setops_password: ${{ secrets.SETOPS_PASSWORD }}
-        setops_username: github-actions-setup@setops.co
+      - name: Setup SetOps
+        uses: ./setup
+        with:
+          setops_api_url: https://${{ secrets.SETOPS_API_DOMAIN }}
+          setops_organization: ${{ secrets.SETOPS_ORG }}
+          setops_password: ${{ secrets.SETOPS_PASSWORD }}
+          setops_username: github-actions-setup@setops.co
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Validate successful login
-      run: setops project | grep "NAME"
+      - name: Validate successful login
+        run: setops project | grep "NAME"
 
-    - name: Validate Docker config was updated
-      run: |
-        grep '"dev.setops.co": "setops-dev"' ~/.docker/config.json
+      - name: Validate Docker config was updated
+        run: |
+          grep '"dev.setops.co": "setops-dev"' ~/.docker/config.json
 
-    - name: Validate Credentials Helper is present
-      run: docker-credential-setops -h
+      - name: Validate Credentials Helper is present
+        run: docker-credential-setops -h
 
-    - name: setops logout
-      run: setops logout
+      - name: setops logout
+        run: setops logout

@@ -2,13 +2,10 @@ name: Setops Deployment
 on:
   workflow_call:
     inputs:
-      setops-stages:
-        description: The SetOps stages to deploy to, space separated, e.g. "stage1 stage2 stage3"
-        required: true
-        type: string
-      setops-apps:
-        description: The SetOps apps to deploy, space separated, e.g. "app1 app2 app3"
-        required: true
+      setops-api-domain:
+        description: The SetOps API URL to connect to
+        required: false
+        default: "api.setops.co"
         type: string
       setops-organization:
         description: The SetOps organization
@@ -17,9 +14,26 @@ on:
       setops-project:
         required: true
         type: string
+      setops-stages:
+        description: The SetOps stages to deploy to, space separated, e.g. "stage1 stage2 stage3"
+        required: true
+        type: string
+      setops-apps:
+        description: The SetOps apps to deploy, space separated, e.g. "app1 app2 app3"
+        required: true
+        type: string
       predeploy-command:
         required: false
         type: string
+      predeploy-command-detach-timeout:
+        required: false
+        type: string
+      predeploy-command-cpu:
+        required: false
+        type: string
+      predeploy-command-memory:
+        type: string
+        required: false
       build-context:
         description: The build context / directory where the Dockerfile is located, defaults to '.'
         required: false
@@ -34,6 +48,19 @@ on:
         description: Docker build args
         required: false
         type: string
+      setops-definition:
+        description: Path to the SetOps definition that should be applied in the deployment
+        required: false
+        type: string
+      image-tag:
+        description: The tag with which the image(s) should be tagged e.g. v1.1.0, defaults to commit hash
+        default: ${{ github.sha }}
+        required: false
+        type: string
+      setops-version:
+        description: "The version of SetOps CLI to install. Instead of a full version string you can also specify a constraint string. Examples are: `<0.1.5`, `~0.1.4`, `0.1.x` (all three installing the latest available 0.1.4 version). Defaults to `latest`."
+        required: false
+        type: string
     secrets:
       setops-username:
         required: true
@@ -42,31 +69,38 @@ on:
       build-secrets:
         description: Docker build secrets
         required: false
+      github-token:
+        description: GitHub token to reduce the risk of rate limits when downloading the requested SetOps CLI
+        required: false
 
 jobs:
   build:
     name: Build and push image
     runs-on: ubuntu-latest
     outputs:
-      image-digest: ${{ steps.build-and-push-image.outputs.image-digest }}
+      image-tag: ${{ steps.build-and-push-image.outputs.image-tag }}
       stages-json: ${{ steps.build-and-push-image.outputs.stages-json }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "Build image and push it to SetOps image registry"
         id: build-and-push-image
-        uses: setopsco/github-actions/build-and-push-image@v2
+        uses: setopsco/github-actions/build-and-push-image@v4
         with:
+          setops-api-domain: ${{ inputs.setops-api-domain }}
+          setops-organization: ${{ inputs.setops-organization }}
+          setops-project: ${{ inputs.setops-project }}
           setops-stages: ${{ inputs.setops-stages }}
           setops-apps: ${{ inputs.setops-apps }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
-          setops-project: ${{ inputs.setops-project }}
-          setops-organization: ${{ inputs.setops-organization }}
+          setops-version: ${{ inputs.setops-version }}
+          image-tag: ${{ inputs.image-tag }}
           build-context: ${{ inputs.build-context }}
           build-cache-key-prefix: ${{ inputs.build-cache-key-prefix }}
           build-args: ${{ inputs.build-args }}
           build-secrets: ${{ secrets.build-secrets }}
+          github-token: ${{ secrets.github-token }}
 
   deploy:
     name: Setops Deployment
@@ -79,16 +113,23 @@ jobs:
     needs: build
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "Deploy apps on SetOps"
         id: deploy
-        uses: setopsco/github-actions/deployment@v2
+        uses: setopsco/github-actions/deployment@v4
         with:
+          setops-api-domain: ${{ inputs.setops-api-domain }}
+          setops-organization: ${{ inputs.setops-organization }}
+          setops-project: ${{ inputs.setops-project }}
           setops-stage: ${{ matrix.setops-stage }}
           setops-apps: ${{ inputs.setops-apps }}
-          setops-project: ${{ inputs.setops-project }}
           setops-username: ${{ secrets.setops-username }}
           setops-password: ${{ secrets.setops-password }}
-          image-digest: ${{ needs.build.outputs.image-digest }}
+          setops-definition: ${{ inputs.setops-definition }}
+          setops-version: ${{ inputs.setops-version }}
+          image-tag: ${{ inputs.image-tag }}
           predeploy-command: ${{ inputs.predeploy-command }}
-          setops-organization: ${{ inputs.setops-organization }}
+          predeploy-command-detach-timeout: ${{ inputs.predeploy-command-detach-timeout }}
+          predeploy-command-cpu: ${{ inputs.predeploy-command-cpu }}
+          predeploy-command-memory: ${{ inputs.predeploy-command-memory }}
+          github-token: ${{ secrets.github-token }}

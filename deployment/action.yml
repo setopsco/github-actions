@@ -1,5 +1,5 @@
 name: "Setops deployment"
-description: "Creates and activates releases for multiple apps within a SetOps stage, performs a predeploy command, waits for the releases to become healthy"
+description: "Creates and activates images for multiple apps within a SetOps stage, performs a predeploy command, waits for the new tasks to become healthy"
 
 inputs:
   setops-organization:
@@ -14,74 +14,121 @@ inputs:
   setops-password:
     description: The SetOps password, usually obtained via secrets.SETOPS_PASSWORD
     required: true
-  image-digest:
-    description: The image digest that was returned when pushing the image to the SetOps registry
-    required: true
   setops-stage:
     description: The setops stage for the deployment, e.g. production
     required: true
   setops-apps:
     description: The SetOps apps to deploy, space separated, e.g. "app1 app2 app3"
     required: true
-  number-of-retries-to-wait-for-successful-deployment:
-    description: Max. number of times to wait for a succesful deployment (we sleep for 5 seconds between tries, so 12 equals 1 minute)
+  setops-api-domain:
+    description: The SetOps API URL to connect to
+    default: "api.setops.co"
     required: false
-    default: "24"
+  setops-definition:
+    description: The SetOps definition to be applied (leave empty if only new images should be applied)
+    required: false
+  setops-version:
+    description: "The version of SetOps CLI to install. Instead of a full version string you can also specify a constraint string. Examples are: `<0.1.5`, `~0.1.4`, `0.1.x` (all three installing the latest available 0.1.4 version). Defaults to `latest`."
+    required: false
+  image-tag:
+    description: The image tag that was used to tag the image to the SetOps registry
+    default: ${{ github.sha }}
+    required: true
+  number-of-retries-to-wait-for-successful-deployment:
+    description: Max. number of times to wait for a successful deployment (we sleep for 5 seconds between tries, so 12 equals 1 minute)
+    required: false
+    default: "120"
   predeploy-command:
-    description: A predeploy command to be run before activating the releases, e.g. for migrating the database
+    description: A predeploy command to be run before activating the images, e.g. for migrating the database
+    required: false
+  predeploy-command-detach-timeout:
+    description: Detach timeout for one-off task that runs predeploy command (h = hours, m = minutes, s = second, ms = milliseconds)
+    required: false
+    default: "10m"
+  predeploy-command-cpu:
+    description: CPU units to provide to the predeploy command. 1024 units are 1 vCPU. Defaults to the configured app CPU units if not passed in.
+    required: false
+  predeploy-command-memory:
+    description: Memory to provide to the predeploy command in MB. Defaults to the configured app memory if not passed in.
+    required: false
+  github-token:
+    description: GitHub token to reduce the risk of rate limits when downloading the requested SetOps CLI
     required: false
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: "Install Setops"
-      uses: setopsco/github-actions/setup@v2
+    - name: Install Setops
+      uses: setopsco/github-actions/setup@v4
       with:
+        setops_api_url: https://${{ inputs.setops-api-domain }}
         setops_organization: ${{ inputs.setops-organization }}
         setops_username: ${{ inputs.setops-username }}
         setops_password: ${{ inputs.setops-password }}
-    - name: "Setops deployment"
+        setops_version: ${{ inputs.setops-version }}
+        github_token: ${{ inputs.github-token }}
+    - name: Install yq
+      run: sudo snap install yq
+      shell: bash
+    - name: Setops deployment
       run: |
         shopt -s expand_aliases
         alias sos='setops -p ${{ inputs.setops-project }} -s ${{ inputs.setops-stage }}'
 
-        sos changeset:discard || true
-
         read -r -a apps <<< "${{ inputs.setops-apps }}"
 
-        declare -A apps_with_release_id
-        for app in "${apps[@]}"; do
-          apps_with_release_id[$app]=$(sos --app "$app" release:create ${{ inputs.image-digest }} | grep -o 'ReleaseID.*' | grep -o '[0-9].*')
-        done
-
-        echo "Changeset for creating releases"
-        sos changeset:commit
+        # apply the given definition so the predeploy command will not fail e.g. for a missing app or service
+        if [ ${#SETOPS_DEFINITION} -gt 0 ]; then
+          echo "Apply given stage definition: $SETOPS_DEFINITION"
+          sos stage:apply -f "$SETOPS_DEFINITION" --auto-approve
+        fi
 
         if [ ${#PREDEPLOY_COMMAND} -gt 0 ]; then
           echo "Run predeploy command"
           first_app=${apps[0]}
-          release_id_of_first_app=${apps_with_release_id[$first_app]}
-          sos --app "$first_app" task:run --debug --release "$release_id_of_first_app" --entrypoint sh -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep SETOPS_SUCCESS > /dev/null
+          resource_parameters=''
+          [ ${#PREDEPLOY_COMMAND_CPU} -gt 0 ] && resource_parameters="$resource_parameters --cpu $PREDEPLOY_COMMAND_CPU"
+          [ ${#PREDEPLOY_COMMAND_MEMORY} -gt 0 ] && resource_parameters="$resource_parameters --memory $PREDEPLOY_COMMAND_MEMORY"
+
+          detach_timeout=''
+          [ ${#PREDEPLOY_DETACH_TIMEOUT} -gt 0 ] && detach_timeout="--detach-timeout $PREDEPLOY_DETACH_TIMEOUT"
+          task_id=$(sos --app "$first_app" task:run $detach_timeout --image-tag "${{ inputs.image-tag }}" --entrypoint sh $resource_parameters -- -c "$PREDEPLOY_COMMAND && echo SETOPS_SUCCESS" | tee /dev/stderr | grep -oP '^ID:   \K[a-z0-9]+$')
+
+          echo "Task finished. Checking the expected SETOPS_SUCCESS log to ensure that all logs are collected"
+          sos --app "$first_app" log -n 50 --task "$task_id" | grep SETOPS_SUCCESS > /dev/null
         else
           echo "No predeploy command has been configured, skipping."
         fi
 
+        COUNT=1
+        apps_with_image_tags=""
         for app in "${apps[@]}"; do
-          release_id=${apps_with_release_id[$app]}
-          sos --app "$app" release:activate "$release_id"
+          apps_with_image_tags="${apps_with_image_tags}${app}=${{ inputs.image-tag }}"
+          if [[ "${#apps[@]}" != "$COUNT" ]]; then
+            apps_with_image_tags="${apps_with_image_tags},"
+          fi
+          ((COUNT+=1))
         done
+        echo "Apply the updated image-tags: ${apps_with_image_tags}"
+        sos stage:apply -t $apps_with_image_tags --auto-approve
 
-        echo "Changeset for activating releases"
-        sos changeset:commit
-
-        echo "Waiting for successful releases"
+        echo "Waiting for successful deployment"
         max_times=${{ inputs.number-of-retries-to-wait-for-successful-deployment }}
         for app in "${apps[@]}"; do
-          release_id=${apps_with_release_id[$app]}
+          # Checking for health state of HEALTHY when health check is configured or otherwise accept UNKNOWN
+          definition=$(sos stage:dump)
+          if echo "$definition" | yq -e ".apps[\"$app\"].container.health_check" &> /dev/null; then
+            echo "Health check detected for app $app - waiting for status RUNNING and health check status HEALTHY"
+            expected_health_status=HEALTHY
+          else
+            echo "No health check detected for app $app - waiting for status RUNNING only"
+            expected_health_status=UNKNOWN
+          fi
 
           for i in $(seq 1 $max_times); do
             sleep 5
-            if sos app:ps $app | grep -w -E "$release_id.*HEALTHY"; then break; fi
-            echo "Continue waiting for $app release $release_id"
+
+            if sos --app $app task | grep -w -E "${{ inputs.image-tag }}.*RUNNING.*$expected_health_status"; then break; fi
+            echo "Continue waiting for $app with image tag ${{ inputs.image-tag }}"
 
             if [ $i = $max_times ]; then exit 1; fi
           done
@@ -89,4 +136,8 @@ runs:
       env:
         # Providing it as an env variable to prevent quoting issues
         PREDEPLOY_COMMAND: ${{ inputs.predeploy-command }}
+        PREDEPLOY_COMMAND_CPU: ${{ inputs.predeploy-command-cpu }}
+        PREDEPLOY_COMMAND_MEMORY: ${{ inputs.predeploy-command-memory }}
+        PREDEPLOY_DETACH_TIMEOUT: ${{ inputs.predeploy-command-detach-timeout }}
+        SETOPS_DEFINITION: ${{ inputs.setops-definition }}
       shell: bash

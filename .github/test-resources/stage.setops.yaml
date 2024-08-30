@@ -1,0 +1,42 @@
+apps:
+  web:
+    network:
+      ports:
+        - 80
+      public: true
+      protocol: http
+      health_check:
+        path: "/"
+        status: 200-499
+    container:
+      health_check:
+        command:
+          - curl
+          - "--fail"
+          - http://localhost
+        retries: 5
+        timeout: 10
+        interval: 10
+        start_period: 15
+    resources:
+      cpu: 128
+      scale: 1
+      memory: 128
+  worker:
+    network:
+      ports:
+        - 5000
+      public: false
+      protocol: http
+      health_check:
+        path: "/"
+        status: 200-499
+    resources:
+      cpu: 128
+      scale: 1
+      memory: 128
+stage: testing
+project: githubactions
+services: {}
+notifications: {}
+schema_version: "2"

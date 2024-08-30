@@ -20,16 +20,16 @@ jobs:
         id: stages
         run: |
           if [ "$GITHUB_REF" == "refs/heads/staging" ]; then
-            echo '::set-output name=stages::staging'
+            echo 'stages=staging' >> $GITHUB_OUTPUT
           elif [ "$GITHUB_REF" == "refs/heads/production" ]; then
-            echo '::set-output name=stages::production'
+            echo 'stages=production' >> $GITHUB_OUTPUT
           else
             echo "⚠️ Could not determine stages for $GITHUB_REF"
             exit 1
           fi
 
   setops-deployment:
-    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v2
+    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v3
     with:
       setops-organization: <yourorganization>
       setops-stages: ${{ needs.setops-stages.outputs.stages }}
@@ -45,20 +45,21 @@ jobs:
       build-secrets: |
         A_BUILD_SECRET_REQUIRED_BY_YOUR_DOCKERFILE="${{ secrets.SECRET1 }}"
         ANOTHER_BUILD_SECRET="A plain string works, too - but this is not secret anymore :-)"
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 You can deploy from one branch to multiple setops stages by setting the output in the `setops_stages` job to a space separated list of stages like this:
 ```
-   echo '::set-output name=stages::production demo'
+   echo 'stages=production demo' >> $GITHUB_OUTPUT
 ```
 
+> :warning: **Github Rate Limit**: It is strongly recommended to provide the github-token secret to  reduce the risk of a rate limit error from the Github API during setup of the SetOps CLI!
 
 This workflow
 
 * Builds a docker image based on the `Dockerfile` in the project's root folder and pushes it to the SetOps registry.
 * Deploys the image to every app configured in `setops-apps`. If you configure more than one stage in `setops-stages`, the workflow will deploy each stage in parallel.
-
-CAUTION: The script assumes a configured [Container Health Check](https://docs.setops.co/latest/user/configuration/apps/#container-health-check) for *all* apps.
+* The script waits for the apps to run and checks, if the [Container Health Check](https://docs.setops.co/latest/user/configuration/apps/#container-health-check) succeeds for all apps if there is a health check configured.
 
 See the [workflow file](.github/workflows/build-and-deployment-workflow.yml) for all possible inputs.
 
@@ -83,28 +84,34 @@ The default configuration installs the latest version of SetOps CLI and a wrappe
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v4
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 A specific version of SetOps CLI can be installed:
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v4
   with:
     setops_version: 1.0.0
+    github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 Credentials for SetOps can be configured:
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v4
   with:
     setops_organization: <yourorganization>
     setops_username: my-ci-user@setops.co
     setops_password: ${{ secrets.SETOPS_PASSWORD }}
+    github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+> :warning: **If you use Dependabot**: By default Dependabot does not have access to your Action secrets and merges & PR workflows will fail due to missing credentials. If you like grant Dependabot access to SetOps, add the secrets to the Dependabot Secrets in the repository settings as well.
 
 See the [action file](setup/action.yml) for all possible inputs.
 
@@ -120,13 +127,13 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-latest
     outputs:
-      image-digest: ${{ steps.build_and_push_image.outputs.image-digest }}
+      image-tag: ${{ steps.build_and_push_image.outputs.image-tag }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "Build image and push it to SetOps image registry"
         id: build_and_push_image
-        uses: setopsco/github-actions/build-and-push-image@v2
+        uses: setopsco/github-actions/build-and-push-image@v4
         with:
           setops-organization: <yourorganization>
           setops-username: ${{ secrets.SETOPS_USER }}
@@ -134,44 +141,48 @@ jobs:
           setops-project: <projectname>
           setops-stages: ${{ needs.setops-stages.outputs.stages }}
           setops-apps: web worker
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-See the [action file](setops-build-and-push-image/action.yml) for all possible inputs.
+See the [action file](build-and-push-image/action.yml) for all possible inputs.
 
 ### Action: `deployment`
 
 The action
 
-* Creates releases for all configured apps
+* Pushes images for all configured apps
 * Runs the pre-deploy command within the first of the configured apps (`web` here)
-* Activates all releases
-* Waits until all releases are healthy
+* Activates all images
+* Waits until all new tasks are healthy (if a health check is configured)
 
 You can also use the action without the workflow:
 
 ```yaml
- deploy:
-    name: Setops Deployment
-    strategy:
-      fail-fast: false
-    concurrency: setops-deployment-${{ github.ref }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: "Checkout repository"
-        uses: actions/checkout@v3
-      - name: "Deploy project on SetOps"
-        id: deploy
-        uses: setopsco/github-actions/deployment@v2
-        with:
-          setops-organization: <yourorganization>
-          setops-username: ${{ secrets.SETOPS_USER }}
-          setops-password: ${{ secrets.SETOPS_PASSWORD }}
-          setops-project: <projectname>
-          setops-stage: <stagename>
-          setops-apps: web worker
-          image-digest: <sha256:7df5b97245.....>
-          predeploy-command: bin/rails db:migrate
+deploy:
+  name: Setops Deployment
+  strategy:
+    fail-fast: false
+  concurrency: setops-deployment-${{ github.ref }}
+  runs-on: ubuntu-latest
+  needs: build
+  steps:
+    - name: "Checkout repository"
+      uses: actions/checkout@v4
+    - name: "Deploy project on SetOps"
+      id: deploy
+      uses: setopsco/github-actions/deployment@v4
+      with:
+        setops-organization: <yourorganization>
+        setops-username: ${{ secrets.SETOPS_USER }}
+        setops-password: ${{ secrets.SETOPS_PASSWORD }}
+        setops-project: <projectname>
+        setops-stage: <stagename>
+        setops-apps: web worker
+        image-tag: ${{ github.sha }}
+        predeploy-command: bin/rails db:migrate
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-See the [action file](setops-deployment/action.yml) for all possible inputs.
+See the [action file](deployment/action.yml) for all possible inputs.
+
+Trigger Tests

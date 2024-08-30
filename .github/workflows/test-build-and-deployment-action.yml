@@ -1,0 +1,95 @@
+name: "test-build-and-deployment-action"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  SETOPS_ORG: ${{ secrets.SETOPS_ORG }}
+  SETOPS_PROJECT: "githubactions"
+  SETOPS_STAGE: "testing"
+  SETOPS_APPS: "web worker"
+  SETOPS_USERNAME: "github-actions-setup@setops.co"
+
+jobs:
+  setup:
+    name: Setup Stage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SetOps
+        uses: ./setup
+        with:
+          setops_api_url: https://${{ secrets.SETOPS_API_DOMAIN }}
+          setops_organization: ${{ secrets.SETOPS_ORG }}
+          setops_password: ${{ secrets.SETOPS_PASSWORD }}
+          setops_username: github-actions-setup@setops.co
+          setops_version: next
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Stage
+        run: |
+          setops -p ${{ env.SETOPS_PROJECT }} project:create --ignore-exists
+          setops -p ${{ env.SETOPS_PROJECT }} -s ${{ env.SETOPS_STAGE }} stage:create --ignore-exists
+          setops -p ${{ env.SETOPS_PROJECT }} -s ${{ env.SETOPS_STAGE }} stage:apply -f .github/test-resources/stage.setops.yaml --auto-approve
+
+  build:
+    name: Build and push image
+    runs-on: ubuntu-latest
+    needs: setup
+    outputs:
+      image-tag: ${{ steps.build-and-push-image.outputs.image-tag }}
+      stages-json: ${{ steps.build-and-push-image.outputs.stages-json }}
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+      - name: "Build image and push it to SetOps image registry"
+        id: build-and-push-image
+        uses: ./build-and-push-image
+        with:
+          setops-stages: ${{ env.SETOPS_STAGE }}
+          setops-apps: ${{ env.SETOPS_APPS }}
+          setops-username: ${{ env.SETOPS_USERNAME }}
+          setops-password: ${{ secrets.SETOPS_PASSWORD }}
+          setops-project: ${{ env.SETOPS_PROJECT }}
+          setops-organization: ${{ env.SETOPS_ORG }}
+          setops-version: next
+          setops-api-domain: ${{ secrets.SETOPS_API_DOMAIN }}
+          build-context: ./.github/test-resources
+          build-args: GIT_SHA=${{ github.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    name: Setops Deployment
+    strategy:
+      fail-fast: false
+      matrix:
+        setops-stage: ${{ fromJson(needs.build.outputs.stages-json) }}
+    concurrency: setops-deployment-${{ github.ref }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+      - name: "Deploy apps on SetOps"
+        id: deploy
+        uses: ./deployment
+        with:
+          setops-stage: ${{ matrix.setops-stage }}
+          setops-apps: ${{ env.SETOPS_APPS }}
+          setops-project: ${{ env.SETOPS_PROJECT }}
+          setops-username: ${{ env.SETOPS_USERNAME }}
+          setops-password: ${{ secrets.SETOPS_PASSWORD }}
+          setops-version: v2.3.0
+          setops-api-domain: ${{ secrets.SETOPS_API_DOMAIN }}
+          setops-definition: .github/test-resources/stage.setops.yaml
+          setops-organization: ${{ env.SETOPS_ORG }}
+          predeploy-command: echo "Hello World"
+          predeploy-command-detach-timeout: 300s
+          predeploy-command-cpu: 128
+          predeploy-command-memory: 128
+          github-token: ${{ secrets.GITHUB_TOKEN }}

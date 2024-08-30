@@ -1,22 +1,31 @@
 const { Octokit } = require('@octokit/rest');
 const semver = require('semver');
 
-const octokit = new Octokit();
-
-async function getDownloadUrl(versionConstraint, os, arch) {
+async function getDownloadUrl(versionConstraint, os, arch, githubToken) {
+  octokitOptions = githubToken ? { auth: githubToken } : {}
+  const octokit = new Octokit(octokitOptions);
   const response = await octokit.repos.listReleases({ owner: "setopsco", repo: "releases" });
   const releases = response.data
-  const releaseVersions = releases.map(release => release.tag_name.substring(1)) // remove the "v" in the version
+
+  const releaseVersions = releases
+    .map(release => release.tag_name.substring(1)) // remove the "v" in the version
+    .sort((a, b) => semver.rcompare(a, b)); // sort via semver
 
   // Test version constraint
-  // "latest" will return invalid but that's ok because we check it explicitly
-  const validVersion = semver.validRange(versionConstraint, { includePrerelease: false, loose: true });
+  // "latest" and "next" will return invalid but that's ok because we check it explicitly
+  const validVersionConstraint = semver.validRange(versionConstraint, { includePrerelease: false, loose: true });
 
   var version
-  if (versionConstraint == 'latest') {
-    version = releaseVersions.sort((a, b) => semver.rcompare(a, b))[0];
-  } else if (validVersion) {
-    version = matchVersion(releaseVersions, validVersion, false);
+  // Include prelease versions, like v1.0.0-rc1 or v1.0.1-dev
+  if (versionConstraint == 'next') {
+    version = releaseVersions[0]
+  } else if (versionConstraint == 'latest') {
+    version = releaseVersions.filter(version => {
+      const prereleaseComponents = semver.prerelease(version);
+      return prereleaseComponents == null || prereleaseComponents.length == 0
+    })[0];
+  } else if (validVersionConstraint) {
+    version = matchVersion(releaseVersions, validVersionConstraint, false);
   } else {
     throw new Error(`${versionConstraint} is not a valid version`);
   }

@@ -20,6 +20,17 @@ inputs:
   setops-apps:
     description: The SetOps apps to build and deploy, space separated, e.g. "app1 app2 app3"
     required: true
+  setops-api-domain:
+    description: The SetOps API domain to connect to
+    default: "api.setops.co"
+    required: false
+  setops-version:
+    description: "The version of SetOps CLI to install. Instead of a full version string you can also specify a constraint string. Examples are: `<0.1.5`, `~0.1.4`, `0.1.x` (all three installing the latest available 0.1.4 version). Defaults to `latest`."
+    required: false
+  image-tag:
+    description: The tag with which the image(s) should be tagged e.g. v1.1.0 (defaults to commit hash)
+    default: ${{ github.sha }}
+    required: false
   build-context:
     description: The build context / directory where the Dockerfile is located, defaults to '.'
     required: false
@@ -34,11 +45,13 @@ inputs:
   build-secrets:
     description: Docker build secrets
     required: false
-
+  github-token:
+    description: GitHub token to reduce the risk of rate limits when downloading the requested SetOps CLI
+    required: false
 outputs:
   image-digest:
     value: ${{ steps.build_app.outputs.digest }}
-    description: The digest of the image that can be referred to when creating releases
+    description: The digest of the image that can was pushed
   stages-json:
     value: ${{ steps.prepare-stages-variables.outputs.stages-json }}
     description: The given stages in stages format, so that they can be used as a matrix workflow input
@@ -52,7 +65,7 @@ runs:
         declare -a tag_names
         for stage in ${{ inputs.setops-stages }}; do
           for app in ${{ inputs.setops-apps }}; do
-            tag_names+=("api.setops.co/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:latest")
+            tag_names+=("${{ inputs.setops-api-domain }}/${{ inputs.setops-organization }}/${{ inputs.setops-project }}/$stage/$app:${{ inputs.image-tag }}")
           done
         done
 
@@ -60,33 +73,36 @@ runs:
         concatenated_tag_names=$(printf ",%s" "${tag_names[@]}")
         concatenated_tag_names=${concatenated_tag_names:1}
 
-        echo "::set-output name=concatenated_tag_names::$concatenated_tag_names"
+        echo "concatenated_tag_names=$concatenated_tag_names" >> $GITHUB_OUTPUT
       shell: bash
     # https://github.com/actions/cache#creating-a-cache-key
     # http://man7.org/linux/man-pages/man1/date.1.html
     - name: Get Date
       id: get_date
       run: |
-        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+        echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
       shell: bash
     - name: "Set up Docker Buildx"
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v3
     - name: Cache Docker layers
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-buildx-${{ steps.get_date.outputs.date }}-${{ inputs.build-cache-key-prefix }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-buildx-${{ steps.get_date.outputs.date }}-${{ inputs.build-cache-key-prefix }}-
-    - name: "Install SetOps CLI"
-      uses: setopsco/github-actions/setup@v2
+    - name: Install SetOps CLI
+      uses: setopsco/github-actions/setup@v4
       with:
+        setops_api_url: https://${{ inputs.setops-api-domain }}
         setops_organization: ${{ inputs.setops-organization }}
         setops_username: ${{ inputs.setops-username }}
         setops_password: ${{ inputs.setops-password }}
+        setops_version: ${{ inputs.setops-version }}
+        github_token: ${{ inputs.github-token }}
     - name: Build and push app
       id: build_app
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v6
       with:
         context: ${{ inputs.build-context }}
         push: true
@@ -109,5 +125,5 @@ runs:
       id: prepare-stages-variables
       run: |
         stages_json=$(echo ${{ inputs.setops-stages }} | jq -Rc 'split(" ")')
-        echo "::set-output name=stages-json::$stages_json"
+        echo "stages-json=$stages_json" >> $GITHUB_OUTPUT
       shell: bash
