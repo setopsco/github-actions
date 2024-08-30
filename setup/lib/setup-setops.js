@@ -71,7 +71,7 @@ async function run() {
     if ((loginUsername || loginPassword || loginOrganization) && !(loginUsername && loginPassword && loginOrganization)) {
       const errorMsg = 'When providing setops_username, setops_password or setops_organization, all of them must be set.'
       const dependabotHint = '\nThis run was triggered by Dependabot. If you want to grant Dependabot access to your SetOps credentials, add them to the dedicated Dependabot Secrets in the repository settings.'
-      throw new Error(errorMsg + (triggeredByDependabot) ? dependabotHint : '');
+      throw new Error(errorMsg + (triggeredByDependabot ? dependabotHint : ''));
     }
 
     if (!apiUrl) {
