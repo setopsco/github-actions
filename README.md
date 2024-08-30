@@ -29,7 +29,7 @@ jobs:
           fi
 
   setops-deployment:
-    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v2
+    uses: setopsco/github-actions/.github/workflows/build-and-deployment-workflow.yml@v3
     with:
       setops-organization: <yourorganization>
       setops-stages: ${{ needs.setops-stages.outputs.stages }}
@@ -84,7 +84,7 @@ The default configuration installs the latest version of SetOps CLI and a wrappe
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v4
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -93,7 +93,7 @@ A specific version of SetOps CLI can be installed:
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v4
   with:
     setops_version: 1.0.0
     github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -103,7 +103,7 @@ Credentials for SetOps can be configured:
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@v2
+- uses: setopsco/github-actions/setup@v4
   with:
     setops_organization: <yourorganization>
     setops_username: my-ci-user@setops.co
@@ -130,10 +130,10 @@ jobs:
       image-tag: ${{ steps.build_and_push_image.outputs.image-tag }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "Build image and push it to SetOps image registry"
         id: build_and_push_image
-        uses: setopsco/github-actions/build-and-push-image@v2
+        uses: setopsco/github-actions/build-and-push-image@v4
         with:
           setops-organization: <yourorganization>
           setops-username: ${{ secrets.SETOPS_USER }}
@@ -167,10 +167,10 @@ deploy:
   needs: build
   steps:
     - name: "Checkout repository"
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: "Deploy project on SetOps"
       id: deploy
-      uses: setopsco/github-actions/deployment@v2
+      uses: setopsco/github-actions/deployment@v4
       with:
         setops-organization: <yourorganization>
         setops-username: ${{ secrets.SETOPS_USER }}
@@ -184,3 +184,5 @@ deploy:
 ```
 
 See the [action file](deployment/action.yml) for all possible inputs.
+
+Trigger Tests

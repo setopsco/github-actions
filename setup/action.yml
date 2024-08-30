@@ -23,7 +23,7 @@ inputs:
     description: GitHub token to reduce the risk of rate limits when downloading the requested SetOps CLI
     required: false
 runs:
-  using: node16
+  using: node20
   main: dist/index.js
 branding:
   icon: terminal

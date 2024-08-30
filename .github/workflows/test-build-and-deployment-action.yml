@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup SetOps
         uses: ./setup
@@ -46,7 +46,7 @@ jobs:
       stages-json: ${{ steps.build-and-push-image.outputs.stages-json }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "Build image and push it to SetOps image registry"
         id: build-and-push-image
         uses: ./build-and-push-image
@@ -74,7 +74,7 @@ jobs:
     needs: build
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "Deploy apps on SetOps"
         id: deploy
         uses: ./deployment
@@ -84,7 +84,7 @@ jobs:
           setops-project: ${{ env.SETOPS_PROJECT }}
           setops-username: ${{ env.SETOPS_USERNAME }}
           setops-password: ${{ secrets.SETOPS_PASSWORD }}
-          setops-version: v2.0.0-rc1
+          setops-version: v2.3.0
           setops-api-domain: ${{ secrets.SETOPS_API_DOMAIN }}
           setops-definition: .github/test-resources/stage.setops.yaml
           setops-organization: ${{ env.SETOPS_ORG }}
