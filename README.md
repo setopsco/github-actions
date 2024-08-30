@@ -184,3 +184,5 @@ deploy:
 ```
 
 See the [action file](deployment/action.yml) for all possible inputs.
+
+Trigger Tests
