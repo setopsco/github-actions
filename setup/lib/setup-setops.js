@@ -69,7 +69,7 @@ async function run() {
     const githubToken = core.getInput('github_token');
 
     if ((loginUsername || loginPassword || loginOrganization) && !(loginUsername && loginPassword && loginOrganization)) {
-      const errorMsg = 'When providing setops_username, setops_password or setops_organization, all of them must be set.'
+      const errorMsg = `When providing setops_username, setops_password or setops_organization, all of them must be set. length(loginUsername): ${loginUsername.length}, length(loginUsername): ${loginPassword.length}, length(loginOrganization): ${loginOrganization.length} `
       const dependabotHint = '\nThis run was triggered by Dependabot. If you want to grant Dependabot access to your SetOps credentials, add them to the dedicated Dependabot Secrets in the repository settings.'
       throw new Error(errorMsg + (triggeredByDependabot ? dependabotHint : ''));
     }
