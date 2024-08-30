@@ -28,7 +28,7 @@ jobs:
           setops_organization: ${{ secrets.SETOPS_ORG }}
           setops_password: ${{ secrets.SETOPS_PASSWORD }}
           setops_username: github-actions-setup@setops.co
-          setops_version: v2.3.0
+          setops_version: next
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Stage
@@ -57,7 +57,7 @@ jobs:
           setops-password: ${{ secrets.SETOPS_PASSWORD }}
           setops-project: ${{ env.SETOPS_PROJECT }}
           setops-organization: ${{ env.SETOPS_ORG }}
-          setops-version: v2.3.0
+          setops-version: next
           setops-api-domain: ${{ secrets.SETOPS_API_DOMAIN }}
           build-context: ./.github/test-resources
           build-args: GIT_SHA=${{ github.sha }}
