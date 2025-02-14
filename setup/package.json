@@ -13,10 +13,10 @@
   "author": "SetOps",
   "dependencies": {
     "@actions/core": "^1.6.0",
-    "@actions/github": "^5.1.1",
+    "@actions/github": "^6.0.0",
     "@actions/io": "^1.1.1",
     "@actions/tool-cache": "^1.7.1",
-    "@octokit/rest": "^18.12.0",
+    "@octokit/rest": "^21.1.1",
     "decompress": "^4.2.1",
     "decompress-bzip2": "^4.0.0",
     "semver": "^7.3.5"
