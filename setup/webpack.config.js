@@ -8,4 +8,7 @@ module.exports = {
   },
   mode: 'production',
   target: 'node',
+  resolve: {
+    conditionNames: ['require', 'node', 'import', 'default'],
+  },
 };
