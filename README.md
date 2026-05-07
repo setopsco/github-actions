@@ -84,7 +84,7 @@ The default configuration installs the latest version of SetOps CLI and a wrappe
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@031473a902eccf65da0be619e2f0e91537a636f2 # v4
+- uses: setopsco/github-actions/setup@a6b174932266ca29c5e4e915d105f6cb92825a21
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -93,7 +93,7 @@ A specific version of SetOps CLI can be installed:
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@031473a902eccf65da0be619e2f0e91537a636f2 # v4
+- uses: setopsco/github-actions/setup@a6b174932266ca29c5e4e915d105f6cb92825a21
   with:
     setops_version: 1.0.0
     github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -103,7 +103,7 @@ Credentials for SetOps can be configured:
 
 ```yaml
 steps:
-- uses: setopsco/github-actions/setup@031473a902eccf65da0be619e2f0e91537a636f2 # v4
+- uses: setopsco/github-actions/setup@a6b174932266ca29c5e4e915d105f6cb92825a21
   with:
     setops_organization: <yourorganization>
     setops_username: my-ci-user@setops.co
