@@ -85,7 +85,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: "Build image and push it to SetOps image registry"
         id: build-and-push-image
-        uses: setopsco/github-actions/build-and-push-image@031473a902eccf65da0be619e2f0e91537a636f2 # v4
+        uses: setopsco/github-actions/build-and-push-image@03bb03eac55618f7b2519f7b89858af21d14568c
         with:
           setops-api-domain: ${{ inputs.setops-api-domain }}
           setops-organization: ${{ inputs.setops-organization }}
@@ -116,7 +116,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: "Deploy apps on SetOps"
         id: deploy
-        uses: setopsco/github-actions/deployment@031473a902eccf65da0be619e2f0e91537a636f2 # v4
+        uses: setopsco/github-actions/deployment@03bb03eac55618f7b2519f7b89858af21d14568c
         with:
           setops-api-domain: ${{ inputs.setops-api-domain }}
           setops-organization: ${{ inputs.setops-organization }}
