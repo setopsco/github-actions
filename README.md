@@ -130,7 +130,7 @@ jobs:
       image-tag: ${{ steps.build_and_push_image.outputs.image-tag }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: "Build image and push it to SetOps image registry"
         id: build_and_push_image
         uses: setopsco/github-actions/build-and-push-image@v4
@@ -167,7 +167,7 @@ deploy:
   needs: build
   steps:
     - name: "Checkout repository"
-      uses: actions/checkout@v4
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
     - name: "Deploy project on SetOps"
       id: deploy
       uses: setopsco/github-actions/deployment@v4
