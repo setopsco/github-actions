@@ -4,17 +4,16 @@ object-assign
 @license MIT
 */
 
+/* v8 ignore else -- @preserve */
+
+/* v8 ignore else -- @preserve -- Bug with vitest coverage where it sees an else branch that doesn't exist */
+
+/* v8 ignore next -- @preserve */
+
 /*!
  * is-natural-number.js | MIT (c) Shinnosuke Watanabe
  * https://github.com/shinnn/is-natural-number.js
 */
-
-/*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
 
 /*!
  * strip-dirs | MIT (c) Shinnosuke Watanabe

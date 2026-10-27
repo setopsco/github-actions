@@ -12,19 +12,19 @@
   "keywords": [],
   "author": "SetOps",
   "dependencies": {
-    "@actions/core": "^1.6.0",
-    "@actions/github": "^5.1.1",
-    "@actions/io": "^1.1.1",
-    "@actions/tool-cache": "^1.7.1",
-    "@octokit/rest": "^18.12.0",
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
+    "@actions/io": "^3.0.2",
+    "@actions/tool-cache": "^4.0.0",
+    "@octokit/rest": "^22.0.1",
     "decompress": "^4.2.1",
     "decompress-bzip2": "^4.0.0",
-    "semver": "^7.3.5"
+    "semver": "^7.7.4"
   },
   "devDependencies": {
-    "jest": "^28.1.0",
-    "webpack": "^5.64.2",
-    "webpack-cli": "^4.9.1"
+    "jest": "^30.3.0",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^7.0.2"
   },
   "jest": {
     "testPathIgnorePatterns": [
