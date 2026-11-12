@@ -67,7 +67,21 @@ runs:
         setops_version: ${{ inputs.setops-version }}
         github_token: ${{ inputs.github-token }}
     - name: Install yq
-      run: sudo snap install yq
+      run: |
+        if command -v yq > /dev/null; then
+          echo "yq is already installed: $(yq --version)"
+        else
+          YQ_VERSION=v4.44.3
+          case "$(uname -m)" in
+            aarch64|arm64) YQ_ARCH=arm64 ;;
+            *) YQ_ARCH=amd64 ;;
+          esac
+          curl -fsSL --retry 5 --retry-all-errors \
+            "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${YQ_ARCH}" \
+            -o /tmp/yq
+          sudo install -m 0755 /tmp/yq /usr/local/bin/yq
+          yq --version
+        fi
       shell: bash
     - name: Setops deployment
       run: |
