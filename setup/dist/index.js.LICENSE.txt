@@ -1,27 +1,17 @@
-/*
-object-assign
-(c) Sindre Sorhus
-@license MIT
-*/
-
 /* v8 ignore else -- @preserve */
 
 /* v8 ignore else -- @preserve -- Bug with vitest coverage where it sees an else branch that doesn't exist */
 
+/* v8 ignore if -- @preserve */
+
 /* v8 ignore next -- @preserve */
 
 /*!
- * is-natural-number.js | MIT (c) Shinnosuke Watanabe
- * https://github.com/shinnn/is-natural-number.js
-*/
-
-/*!
- * strip-dirs | MIT (c) Shinnosuke Watanabe
- * https://github.com/shinnn/node-strip-dirs
-*/
+ * content-type
+ * Copyright(c) 2015 Douglas Christopher Wilson
+ * MIT Licensed
+ */
 
 /*! formdata-polyfill. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
-
-/*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /*! ws. MIT License. Einar Otto Stangvik <einaros@gmail.com> */
