@@ -82,7 +82,7 @@ jobs:
       stages-json: ${{ steps.build-and-push-image.outputs.stages-json }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: "Build image and push it to SetOps image registry"
         id: build-and-push-image
         uses: setopsco/github-actions/build-and-push-image@03bb03eac55618f7b2519f7b89858af21d14568c
@@ -113,7 +113,7 @@ jobs:
     needs: build
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: "Deploy apps on SetOps"
         id: deploy
         uses: setopsco/github-actions/deployment@603ac42f946cea6407d624ef9b757370f3c25c94
