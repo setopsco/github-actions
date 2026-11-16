@@ -12,6 +12,10 @@ updates:
       default-days: 7
     assignees:
       - stefanvocke
+    ignore:
+      # Self-references to actions in this repo: every bump creates a new commit
+      # on main, so the pinned SHA is always outdated again. Update these manually.
+      - dependency-name: "setopsco/github-actions*"
     groups:
       github-actions:
         patterns:
