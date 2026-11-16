@@ -8,6 +8,10 @@ updates:
       - /build-and-push-image
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
+    assignees:
+      - stefanvocke
     groups:
       github-actions:
         patterns:
@@ -17,6 +21,10 @@ updates:
     directory: /setup
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
+    assignees:
+      - stefanvocke
     groups:
       npm-minor-and-patch:
         update-types:
