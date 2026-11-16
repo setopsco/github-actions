@@ -1,0 +1,32 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /setup
+      - /deployment
+      - /build-and-push-image
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    assignees:
+      - stefanvocke
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: npm
+    directory: /setup
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    assignees:
+      - stefanvocke
+    groups:
+      npm-minor-and-patch:
+        update-types:
+          - minor
+          - patch

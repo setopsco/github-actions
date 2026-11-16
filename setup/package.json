@@ -17,14 +17,13 @@
     "@actions/io": "^3.0.2",
     "@actions/tool-cache": "^4.0.0",
     "@octokit/rest": "^22.0.1",
-    "decompress": "^4.2.1",
-    "decompress-bzip2": "^4.0.0",
-    "semver": "^7.7.4"
+    "seek-bzip": "^2.0.0",
+    "semver": "^7.8.6"
   },
   "devDependencies": {
-    "jest": "^30.3.0",
-    "webpack": "^5.106.2",
-    "webpack-cli": "^7.0.2"
+    "jest": "^30.5.2",
+    "webpack": "^5.112.2",
+    "webpack-cli": "^7.3.1"
   },
   "jest": {
     "testPathIgnorePatterns": [

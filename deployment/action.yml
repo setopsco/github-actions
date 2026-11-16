@@ -71,7 +71,7 @@ runs:
         if command -v yq > /dev/null; then
           echo "yq is already installed: $(yq --version)"
         else
-          YQ_VERSION=v4.44.3
+          YQ_VERSION=v4.54.3
           case "$(uname -m)" in
             aarch64|arm64) YQ_ARCH=arm64 ;;
             *) YQ_ARCH=amd64 ;;

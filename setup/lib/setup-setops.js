@@ -7,8 +7,7 @@ const path = require('path');
 const core = require('@actions/core');
 const github = require('@actions/github');
 const tc = require('@actions/tool-cache');
-const decompress = require('decompress');
-const decompressBzip2 = require('decompress-bzip2');
+const Bunzip = require('seek-bzip');
 
 // SetOps
 const releases = require('./releases')
@@ -36,13 +35,8 @@ async function downloadCLI(url, githubToken) {
   const pathToCLI = await fs.mkdtemp(path.join(os.tmpdir(), 'setops-'));
 
   core.debug(`Extracting SetOps CLI bz2 file to ${pathToCLI}`);
-  await decompress(pathToDownload, pathToCLI, {
-    plugins: [
-      decompressBzip2({ path: 'setops' })
-    ]
-  });
-
-  await fs.chmod(path.join(pathToCLI, "setops"), 0o755)
+  const compressed = await fs.readFile(pathToDownload);
+  await fs.writeFile(path.join(pathToCLI, "setops"), Bunzip.decode(compressed), { mode: 0o755 });
 
   return pathToCLI;
 }
